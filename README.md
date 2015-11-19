@@ -7,73 +7,99 @@ go test -v github.com/wzshiming/ffmt
 
 ```
 ```
-=== RUN Test_fmt
-{
- "Msg":"Display a friendly fmt for golang"
-,"Stru":{
-  "Msg":"Test"
- ,"AA":[
-   2222
-  ,3333
+=== RUN   Test_fmt
+[
+ main.<anonym>{
+  Msg:"Display a friendly fmt for golang"
+  msg:<private>
+  Stru:slice[
+   main.<anonym>{
+    Msg:"" AA:slice[
+     0 0 0 0 0
+     0 0 0 0 0
+     0 0 0 0 0
+     0 0 0 0 0
+    ]
+   }
+   main.<anonym>{
+    Msg:"Test"
+    AA:slice[
+     2222 3333
+     0 0 0 0 0
+     0 0 0 0 0
+     0 0 0 0 0
+     0 0 0
+    ]
+   }
   ]
+  Floats:slice[
+   2.1 3.3 0
+   0 0 0 0 0
+   0 0 0 0 0
+   0 0 0 0 0
+   0 0
+  ]
+  Ints:slice[
+   slice[
+    1 4
+   ]
+   slice[
+    3
+   ]
+  ]
+  Maps:map[
+   "bb":"bye world"
+   "aa":"hi world"
+  ]
+  B:true
  }
-,"Floats":[
-  2.1
- ,3.3
- ]
-,"Ints":[
-  [
-   1
-  ,4
+ "{
+  "Msg":"Display a friendly fmt for golang"
+ ,"Stru":[
+   {
+    "Msg":"","AA":[
+     0,0,0,0,0
+    ,0,0,0,0,0
+    ,0,0,0,0,0
+    ,0,0,0,0,0
+    ]
+   }
+  ,{
+    "Msg":"Test"
+   ,"AA":[
+     2222,3333
+    ,0,0,0,0,0
+    ,0,0,0,0,0
+    ,0,0,0,0,0
+    ,0,0,0
+    ]
+   }
   ]
- ,[
-   3
+ ,"Floats":[
+   2.1,3.3,0
+  ,0,0,0,0,0
+  ,0,0,0,0,0
+  ,0,0,0,0,0
+  ,0,0
   ]
- ]
-,"Maps":{
-  "aa":"hi world"
- ,"bb":"bye world"
- }
-}
-
-{
- Display
- a
- friendly
- fmt
- for
- golang
- {
-  Test
-  [
-   2222
-   3333
+ ,"Ints":[
+   [
+    1,4
+   ]
+  ,[
+    3
+   ]
   ]
- }
- [
-  2.1
-  3.3
- ]
- [
-  [
-   1
-   4
-  ]
-  [
-   3
-  ]
- ]
- map[
-  aa:hi
-  world
-  bb:bye
-  world
- ]
-}
-
+ ,"Maps":{
+   "aa":"hi world"
+  ,"bb":"bye world"
+  }
+ ,"B":true
+ }"
+]
 --- PASS: Test_fmt (0.00s)
 PASS
-ok      github.com/wzshiming/ffmt       0.325s
+ok  	github.com/wzshiming/ffmt	0.033s
 
 ```
 

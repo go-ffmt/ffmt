@@ -1,14 +1,10 @@
 package ffmt
 
-import (
-	"fmt"
-	"io"
-	"os"
-	"regexp"
-)
+import "regexp"
 
 var (
-	WidthMax    = 0
+	WidthMax    = 64
+	LineMax     = 8
 	reg         = regexp.MustCompile(`([\"\'][\w\s\.]+[^\"\'][\"\'])|([\w\.]+)|.`)
 	regpro      = regexp.MustCompile(`[\[\{\(]`)
 	regsuf      = regexp.MustCompile(`[\]\}\)]`)
@@ -48,38 +44,32 @@ func Trim(a string) (b string) {
 func Fmt(a string) string {
 	depth := -1
 	width := 0
+	line := 0
 	ret := reg.ReplaceAllStringFunc(Strip(a), func(b string) (out string) {
 		if regstrip.MatchString(b) {
-			if width >= WidthMax {
+			if width >= WidthMax || line >= LineMax{
 				out = spacing(depth) + b
+				width = depth
+				line = 0
 			} else {
 				out = b
 			}
 		} else if regpro.MatchString(b) {
 			depth++
+			
 			out = b + spacing(depth+1)
 			width = depth
+			line = 0
 		} else if regsuf.MatchString(b) {
 			out = spacing(depth) + b
 			depth--
-			width = depth
+			width = WidthMax
 		} else {
 			out = b
 		}
+		line += len(b)
 		width += len(out)
 		return
 	})
 	return Trim(ret)
-}
-
-func Sputs(a ...interface{}) string {
-	return Fmt(fmt.Sprintln(a...))
-}
-
-func Puts(a ...interface{}) (int, error) {
-	return Fputs(os.Stdout, a...)
-}
-
-func Fputs(w io.Writer, a ...interface{}) (int, error) {
-	return fmt.Fprintln(w, Sputs(a...))
 }
