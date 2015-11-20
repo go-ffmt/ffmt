@@ -3,14 +3,18 @@ package ffmt
 import "regexp"
 
 var (
-	WidthMax    = 64
-	LineMax     = 8
-	reg         = regexp.MustCompile(`([\"\'][\w\s\.]+[^\"\'][\"\'])|([\w\.]+)|.`)
-	regpro      = regexp.MustCompile(`[\[\{\(]`)
-	regsuf      = regexp.MustCompile(`[\]\}\)]`)
-	regstrip    = regexp.MustCompile(`[\s,]+`)
-	regstrippro = regexp.MustCompile(`([\[\{\(])\s+`)
-	regstripsuf = regexp.MustCompile(`\s+([\]\}\)])`)
+	WidthMax = 79
+	LineMax  = 39
+	reg      = regexp.MustCompile(`([\"\'][\w\s\.]+[^\"\'][\"\'])|([\w\.]+)|.`)
+	//	regpro      = regexp.MustCompile(`[\[\{\(]`)
+	//	regsuf      = regexp.MustCompile(`[\]\}\)]`)
+	regpro   = regexp.MustCompile(`[\[\{]`)
+	regsuf   = regexp.MustCompile(`[\]\}]`)
+	regstrip = regexp.MustCompile(`[\s,]+`)
+	//	regstrippro = regexp.MustCompile(`([\[\{\(])\s+`)
+	//	regstripsuf = regexp.MustCompile(`\s+([\]\}\)])`)
+	regstrippro = regexp.MustCompile(`([\[\{])\s+`)
+	regstripsuf = regexp.MustCompile(`\s+([\]\}])`)
 	regspar     = regexp.MustCompile(`\s+`)
 	regtrim     = regexp.MustCompile(`\n\s+\n`)
 	regcolon    = regexp.MustCompile(`:\s*`)
@@ -38,6 +42,7 @@ func Trim(a string) (b string) {
 	b = regtrim.ReplaceAllString(a, "\n")
 	b = regcolon.ReplaceAllString(b, ":")
 	//b = regbracket.ReplaceAllString(b, " $1")
+	b += "\n"
 	return
 }
 
@@ -47,7 +52,7 @@ func Fmt(a string) string {
 	line := 0
 	ret := reg.ReplaceAllStringFunc(Strip(a), func(b string) (out string) {
 		if regstrip.MatchString(b) {
-			if width >= WidthMax || line >= LineMax{
+			if width >= WidthMax || line >= LineMax {
 				out = spacing(depth) + b
 				width = depth
 				line = 0
@@ -56,7 +61,7 @@ func Fmt(a string) string {
 			}
 		} else if regpro.MatchString(b) {
 			depth++
-			
+
 			out = b + spacing(depth+1)
 			width = depth
 			line = 0

@@ -11,75 +11,61 @@ go test -v github.com/wzshiming/ffmt
 [
  main.<anonym>{
   Msg:"Display a friendly fmt for golang"
-  msg:<private>
-  Stru:slice[
+  msg:<private> Stru:slice[
    main.<anonym>{
-    Msg:"" AA:slice[
-     0 0 0 0 0
-     0 0 0 0 0
-     0 0 0 0 0
-     0 0 0 0 0
+    Msg:"" AA:array[
+     int(0) int(0) int(0) int(0) int(0) int(0)
+     int(0) int(0) int(0) int(0) int(0) int(0)
+     int(0) int(0) int(0) int(0) int(0) int(0)
+     int(0) int(0)
     ]
    }
    main.<anonym>{
-    Msg:"Test"
-    AA:slice[
-     2222 3333
-     0 0 0 0 0
-     0 0 0 0 0
-     0 0 0 0 0
-     0 0 0
+    Msg:"Test" AA:array[
+     int(2222) int(3333) int(0) int(0) int(0)
+     int(0) int(0) int(0) int(0) int(0) int(0)
+     int(0) int(0) int(0) int(0) int(0) int(0)
+     int(0) int(0) int(0)
     ]
    }
   ]
-  Floats:slice[
-   2.1 3.3 0
-   0 0 0 0 0
-   0 0 0 0 0
-   0 0 0 0 0
-   0 0
+  Floats:array[
+   float32(2.1) float32(3.3) float32(0) float32(0)
+   float32(0) float32(0) float32(0) float32(0)
+   float32(0) float32(0) float32(0) float32(0)
+   float32(0) float32(0) float32(0) float32(0)
+   float32(0) float32(0) float32(0) float32(0)
   ]
   Ints:slice[
    slice[
-    1 4
+    int(1) int(4)
    ]
    slice[
-    3
+    int(3)
    ]
   ]
   Maps:map[
-   "bb":"bye world"
-   "aa":"hi world"
+   "aa":"hi world" "bb":"bye world"
   ]
-  B:true
+  B:bool(true)
  }
  "{
   "Msg":"Display a friendly fmt for golang"
  ,"Stru":[
    {
     "Msg":"","AA":[
-     0,0,0,0,0
-    ,0,0,0,0,0
-    ,0,0,0,0,0
-    ,0,0,0,0,0
+     0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
     ]
    }
   ,{
-    "Msg":"Test"
-   ,"AA":[
-     2222,3333
-    ,0,0,0,0,0
-    ,0,0,0,0,0
-    ,0,0,0,0,0
+    "Msg":"Test","AA":[
+     2222,3333,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
     ,0,0,0
     ]
    }
   ]
  ,"Floats":[
-   2.1,3.3,0
-  ,0,0,0,0,0
-  ,0,0,0,0,0
-  ,0,0,0,0,0
+   2.1,3.3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
   ,0,0
   ]
  ,"Ints":[
@@ -91,13 +77,20 @@ go test -v github.com/wzshiming/ffmt
    ]
   ]
  ,"Maps":{
-   "aa":"hi world"
-  ,"bb":"bye world"
+   "aa":"hi world","bb":"bye world"
   }
  ,"B":true
  }"
 ]
 --- PASS: Test_fmt (0.00s)
+=== RUN   Test_Now
+func(*testing.T)()(0x00000000000000483390)
+ 
+chan(0x0000000000c08200ef00) 
+time.Time{
+ 2015-11-21 23:39:21.7021029 +0800 CST
+}
+--- PASS: Test_Now (0.00s)
 PASS
 ok  	github.com/wzshiming/ffmt	0.033s
 

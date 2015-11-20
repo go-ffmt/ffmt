@@ -9,7 +9,7 @@ import (
 
 func Test_fmt(t *testing.T) {
 	js, _ := json.Marshal(Test1)
-	Puts(Test1,string(js))
+	Puts(Test1, string(js))
 
 }
 
@@ -20,18 +20,18 @@ var Test1 = struct {
 		Msg string
 		AA  [20]int
 	}
-	
+
 	Floats [20]float32
 	Ints   [][]int
 	Maps   map[string]string
-	B bool
+	B      bool
 }{
 	"Display a friendly fmt for golang",
 	"Display ",
 	[]struct {
 		Msg string
 		AA  [20]int
-	}{{},{
+	}{{}, {
 		"Test",
 		[20]int{2222, 3333},
 	}},
@@ -44,7 +44,8 @@ var Test1 = struct {
 	true,
 }
 
-
 func Test_Now(t *testing.T) {
+	Puts(Test_Now)
+	Puts(make(chan int))
 	Puts(time.Now())
 }

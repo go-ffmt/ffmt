@@ -20,13 +20,14 @@ func ToString(i ...interface{}) (ret string) {
 		ret += "]"
 		return
 	}
-
 }
+
 func toString(va reflect.Value) (ret string) {
 	if !va.IsValid() {
 		return "<invalid>"
 	}
 	v := va
+
 	for v.Kind() == reflect.Ptr {
 		v = v.Elem()
 		ret += "&"
@@ -40,11 +41,46 @@ func toString(va reflect.Value) (ret string) {
 		ret += sliceToString(v)
 	case reflect.String:
 		ret += "\"" + v.String() + "\""
+	case reflect.Func:
+		ret += funcToString(v)
+	case reflect.Chan, reflect.Uintptr, reflect.Ptr, reflect.UnsafePointer:
+		ret += pointerToString(v)
 	default:
-		ret += fmt.Sprintln(v.Interface())
+		ret += v.Kind().String() + "(" + fmt.Sprint(v.Interface()) + ")"
+	}
+	return
+}
+
+func funcToString(v reflect.Value) (ret string) {
+	t := v.Type()
+	in := ""
+	if t.NumIn() != 0 {
+		for i := 0; ; {
+			in += t.In(i).String()
+			i++
+			if i == t.NumIn() {
+				break
+			}
+			in += ","
+		}
+	}
+	out := ""
+	if t.NumOut() != 0 {
+		for i := 0; ; {
+			out += t.Out(i).String()
+			i++
+			if i == t.NumOut() {
+				break
+			}
+			out += ","
+		}
 	}
 
-	return
+	return fmt.Sprintf("func(%s)(%s)(0x%020x) ", in, out, v.Pointer())
+}
+
+func pointerToString(v reflect.Value) (ret string) {
+	return fmt.Sprintf("%s(0x%020x) ", v.Kind().String(), v.Pointer())
 }
 
 func structToString(v reflect.Value) (ret string) {
@@ -108,10 +144,13 @@ func sliceToString(v reflect.Value) (ret string) {
 }
 
 func callString(v reflect.Value) string {
-	f := v.MethodByName("String")
+	i := v.Interface()
 
-	if f.Kind() == reflect.Func && f.Type().NumIn() == 0 && f.Type().NumOut() == 1 && f.Type().Out(0).Kind() == reflect.String {
-		return f.Call([]reflect.Value{})[0].String()
+	if e, b := i.(fmt.Stringer); b {
+		return e.String()
+	}
+	if e, b := i.(fmt.GoStringer); b {
+		return e.GoString()
 	}
 	return ""
 }
