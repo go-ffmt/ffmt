@@ -84,11 +84,8 @@ go test -v github.com/wzshiming/ffmt
 ]
 --- PASS: Test_fmt (0.00s)
 === RUN   Test_Now
-func(*testing.T)()(0x00000000000000483390)
- 
-chan(0x0000000000c08200ef00) 
 time.Time{
- 2015-11-21 23:39:21.7021029 +0800 CST
+ 2015-11-23 22:30:51.2281819 +0800 CST
 }
 --- PASS: Test_Now (0.00s)
 PASS

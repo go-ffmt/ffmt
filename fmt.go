@@ -19,6 +19,7 @@ var (
 	regtrim     = regexp.MustCompile(`\n\s+\n`)
 	regcolon    = regexp.MustCompile(`:\s*`)
 	regbracket  = regexp.MustCompile(`\n\s+([\[\{\(])`)
+	regempty    = regexp.MustCompile(`([\[\{\(])\s+([\]\}\)])`)
 )
 
 func spacing(depth int) string {
@@ -41,6 +42,7 @@ func Strip(a string) (b string) {
 func Trim(a string) (b string) {
 	b = regtrim.ReplaceAllString(a, "\n")
 	b = regcolon.ReplaceAllString(b, ":")
+	b = regempty.ReplaceAllString(b, "$1$2")
 	//b = regbracket.ReplaceAllString(b, " $1")
 	b += "\n"
 	return
