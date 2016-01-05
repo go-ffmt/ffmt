@@ -3,9 +3,11 @@ package ffmt
 import "regexp"
 
 var (
-	WidthMax = 79
-	LineMax  = 39
-	reg      = regexp.MustCompile(`([\"\'][\w\s\.]+[^\"\'][\"\'])|([\w\.]+)|.`)
+	WidthMax = 0
+	LineMax  = 0
+	//	WidthMax = 79
+	//	LineMax  = 39
+	reg = regexp.MustCompile(`([\"\'][\w\s.]+[^\"\'][\"\'])|([\w\.]+)|(<[^<]+>)|(\([^\(]+\))|.`)
 	//	regpro      = regexp.MustCompile(`[\[\{\(]`)
 	//	regsuf      = regexp.MustCompile(`[\]\}\)]`)
 	regpro   = regexp.MustCompile(`[\[\{]`)
@@ -13,13 +15,13 @@ var (
 	regstrip = regexp.MustCompile(`[\s,]+`)
 	//	regstrippro = regexp.MustCompile(`([\[\{\(])\s+`)
 	//	regstripsuf = regexp.MustCompile(`\s+([\]\}\)])`)
-	regstrippro = regexp.MustCompile(`([\[\{])\s+`)
-	regstripsuf = regexp.MustCompile(`\s+([\]\}])`)
-	regspar     = regexp.MustCompile(`\s+`)
-	regtrim     = regexp.MustCompile(`\n\s+\n`)
-	regcolon    = regexp.MustCompile(`:\s*`)
-	regbracket  = regexp.MustCompile(`\n\s+([\[\{\(])`)
-	regempty    = regexp.MustCompile(`([\[\{\(])\s+([\]\}\)])`)
+	regstrippro = regexp.MustCompile(`([\(\[\{<])\s*`)                       // 设置左括号右边空一格
+	regstripsuf = regexp.MustCompile(`\s*([\)\]\}>])`)                       // 设置右括号左边空一格
+	regspar     = regexp.MustCompile(`\s+`)                                  // 删除多余空格
+	regtrim     = regexp.MustCompile(`[\n\s*]+\n`)                           // 删除多余行
+	regcolon    = regexp.MustCompile(`:\s*`)                                 // 冒号后面空一格
+	regbracket  = regexp.MustCompile(`([^\[\{\(\<\s,\"\'])\s*([\[\{\(\<:])`) // 左括号顶到空一格
+	regempty    = regexp.MustCompile(`([\[\{\(])\s+([\]\}\)])`)              // 如果 括号之间没有东西 去除括号之间的空格
 )
 
 func spacing(depth int) string {
@@ -33,18 +35,20 @@ func spacing(depth int) string {
 }
 
 func Strip(a string) (b string) {
-	b = regspar.ReplaceAllString(a, " ")
-	b = regstrippro.ReplaceAllString(b, "$1")
-	b = regstripsuf.ReplaceAllString(b, "$1")
+	b = a
+	b = regspar.ReplaceAllString(b, " ")
+	b = regstrippro.ReplaceAllString(b, "$1 ")
+	b = regstripsuf.ReplaceAllString(b, " $1 ")
 	return
 }
 
 func Trim(a string) (b string) {
-	b = regtrim.ReplaceAllString(a, "\n")
-	b = regcolon.ReplaceAllString(b, ":")
+	b = a
+	b = regcolon.ReplaceAllString(b, ": ")
 	b = regempty.ReplaceAllString(b, "$1$2")
-	//b = regbracket.ReplaceAllString(b, " $1")
-	b += "\n"
+	b = regbracket.ReplaceAllString(b, "$1 $2")
+	b = regtrim.ReplaceAllString(b, "\n")
+	//b += "\n"
 	return
 }
 

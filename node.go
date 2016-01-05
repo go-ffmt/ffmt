@@ -2,6 +2,9 @@ package ffmt
 
 import "strings"
 
+// 下一步优化显示的
+// 让一些连续的较短的行 变成一行
+// 还没完成
 type node struct {
 	parent *node
 	Value  string

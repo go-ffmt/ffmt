@@ -5,18 +5,23 @@ import (
 	"reflect"
 )
 
-var DepthMax = 10
+var DepthMax = 20
 
-func ToStringDepth(depth int, i ...interface{}) (ret string) {
+const (
+	invalid = "<invalid>"
+	private = "<private>"
+)
+
+func ToString(depth int, b bool, i ...interface{}) (ret string) {
 	switch len(i) {
 	case 0:
-		return "<none>"
+		return invalid
 	case 1:
-		return toString(reflect.ValueOf(i[0]), depth)
+		return toString(reflect.ValueOf(i[0]), depth, b)
 	default:
 		ret += "["
 		for k := 0; k != len(i); k++ {
-			ret += toString(reflect.ValueOf(i[k]), depth)
+			ret += toString(reflect.ValueOf(i[k]), depth, b)
 			ret += " "
 		}
 		ret += "]"
@@ -24,18 +29,14 @@ func ToStringDepth(depth int, i ...interface{}) (ret string) {
 	}
 }
 
-func ToString(i ...interface{}) string {
-	return ToStringDepth(DepthMax, i...)
-}
-
-func toString(va reflect.Value, depth int) (ret string) {
+func toString(va reflect.Value, depth int, b bool) (ret string) {
 
 	if !va.IsValid() {
-		return "<invalid>"
+		return invalid
 	}
 	v := va
 	if depth <= 0 {
-		return v.Kind().String() + "(" + fmt.Sprint(v.Interface()) + ")"
+		return toDefault(v, b)
 	}
 
 	for v.Kind() == reflect.Ptr {
@@ -45,13 +46,13 @@ func toString(va reflect.Value, depth int) (ret string) {
 	depth--
 	switch v.Kind() {
 	case reflect.Invalid:
-		ret += v.Kind().String() + "<invalid>"
+		ret += getName(v, b) + invalid
 	case reflect.Struct:
-		ret += structToString(v, depth)
+		ret += structToString(v, depth, b)
 	case reflect.Map:
-		ret += mapToString(v, depth)
+		ret += mapToString(v, depth, b)
 	case reflect.Array, reflect.Slice:
-		ret += sliceToString(v, depth)
+		ret += sliceToString(v, depth, b)
 	case reflect.String:
 		ret += "\"" + v.String() + "\""
 	case reflect.Func:
@@ -59,8 +60,20 @@ func toString(va reflect.Value, depth int) (ret string) {
 	case reflect.Chan, reflect.Uintptr, reflect.Ptr, reflect.UnsafePointer:
 		ret += pointerToString(v)
 	default:
-		ret += v.Kind().String() + "(" + fmt.Sprint(v.Interface()) + ")"
+		ret += toDefault(v, b)
 
+	}
+	return
+}
+
+func toDefault(v reflect.Value, b bool) (ret string) {
+	if b {
+		ret += getName(v, b)
+		ret += "("
+	}
+	ret += fmt.Sprint(v.Interface())
+	if b {
+		ret += ")"
 	}
 	return
 }
@@ -90,74 +103,68 @@ func funcToString(v reflect.Value) (ret string) {
 		}
 	}
 
-	return fmt.Sprintf("func(%s)(%s)(0x%020x) ", in, out, v.Pointer())
+	return fmt.Sprintf("< func(%s)(%s)(0x%020x) > ", in, out, v.Pointer())
 }
 
 func pointerToString(v reflect.Value) (ret string) {
 	return fmt.Sprintf("%s(0x%020x) ", v.Kind().String(), v.Pointer())
 }
 
-func structToString(v reflect.Value, depth int) (ret string) {
-	t := v.Type()
-	if t.PkgPath() != "" {
-		ret += t.PkgPath()
-	} else {
-		ret += "main"
-	}
-	ret += "."
-	if t.Name() != "" {
-		ret += t.Name()
-	} else {
-		ret += "<anonym>"
-	}
-	ret += "{ "
-	cs := callString(v)
+func structToString(v reflect.Value, depth int, b bool) (ret string) {
+	ret += getName(v, b)
+
+	cs := getString(v)
 	if cs != "" {
+		ret += "< "
 		ret += cs
+		ret += " >"
 	} else {
+		ret += "{"
 		v.FieldByNameFunc(func(n string) bool {
 			ret += n
 			ret += ":"
 			v0 := v.FieldByName(n)
 			if v0.CanInterface() {
-				ret += toString(v0, depth)
+				ret += toString(v0, depth, b)
 				ret += " "
 			} else {
-				ret += "<private> "
+				ret += private
 			}
 			return false
 		})
+		ret += "}"
 	}
-	ret += "}"
+
 	return
 }
 
-func mapToString(v reflect.Value, depth int) (ret string) {
+func mapToString(v reflect.Value, depth int, b bool) (ret string) {
 	mk := v.MapKeys()
-	ret += "map[ "
+	ret += getName(v, b)
+	ret += "["
 	for i := 0; i != len(mk); i++ {
 		k := mk[i]
-		ret += toString(k, 1)
+		ret += toString(k, 2, b)
 		ret += ":"
-		ret += toString(v.MapIndex(k), depth)
+		ret += toString(v.MapIndex(k), depth, b)
 		ret += " "
 	}
-	ret += "] "
+	ret += "]"
 	return
 }
 
-func sliceToString(v reflect.Value, depth int) (ret string) {
-	ret += v.Kind().String()
-	ret += "[ "
+func sliceToString(v reflect.Value, depth int, b bool) (ret string) {
+	ret += getName(v, b)
+	ret += "["
 	for i := 0; i != v.Len(); i++ {
-		ret += toString(v.Index(i), depth)
+		ret += toString(v.Index(i), depth, b)
 		ret += " "
 	}
-	ret += "] "
+	ret += "]"
 	return
 }
 
-func callString(v reflect.Value) string {
+func getString(v reflect.Value) string {
 	i := v.Interface()
 
 	if e, b := i.(fmt.Stringer); b {
@@ -167,4 +174,22 @@ func callString(v reflect.Value) string {
 		return e.GoString()
 	}
 	return ""
+}
+
+func getName(v reflect.Value, b bool) (ret string) {
+	if !b {
+		return ""
+	}
+	t := v.Type()
+	if t.PkgPath() != "" {
+		ret += t.PkgPath()
+		ret += "."
+	}
+
+	if t.Name() != "" {
+		ret += t.Name()
+	} else {
+		ret += t.Kind().String()
+	}
+	return
 }

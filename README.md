@@ -9,88 +9,115 @@ go test -v github.com/wzshiming/ffmt
 ```
 === RUN   Test_fmt
 [
- main.<anonym>{
-  Msg:"Display a friendly fmt for golang"
-  msg:<private> Stru:slice[
-   main.<anonym>{
-    Msg:"" AA:array[
-     int(0) int(0) int(0) int(0) int(0) int(0)
-     int(0) int(0) int(0) int(0) int(0) int(0)
-     int(0) int(0) int(0) int(0) int(0) int(0)
-     int(0) int(0)
+ struct {
+  Msg: "Display a friendly fmt for golang"
+  Msg2: "hello all"
+  Msg3: "hello all2"
+  Msg4: "hello all hello all hello all hello all hello all hello all "
+  msg: < private >
+  Stru: slice [
+   struct {
+    Msg: ""
+    AA: array [
+     int ( 0 )
+     int ( 0 )
+     int ( 0 )
+     int ( 0 )
+     int ( 0 )
     ]
    }
-   main.<anonym>{
-    Msg:"Test" AA:array[
-     int(2222) int(3333) int(0) int(0) int(0)
-     int(0) int(0) int(0) int(0) int(0) int(0)
-     int(0) int(0) int(0) int(0) int(0) int(0)
-     int(0) int(0) int(0)
+   struct {
+    Msg: "Test"
+    AA: array [
+     int ( 2222 )
+     int ( 3333 )
+     int ( 0 )
+     int ( 0 )
+     int ( 0 )
     ]
    }
   ]
-  Floats:array[
-   float32(2.1) float32(3.3) float32(0) float32(0)
-   float32(0) float32(0) float32(0) float32(0)
-   float32(0) float32(0) float32(0) float32(0)
-   float32(0) float32(0) float32(0) float32(0)
-   float32(0) float32(0) float32(0) float32(0)
+  Floats: array [
+   float32 ( 2.1 )
+   float32 ( 3.3 )
+   float32 ( 0 )
+   float32 ( 0 )
+   float32 ( 0 )
   ]
-  Ints:slice[
-   slice[
-    int(1) int(4)
+  Ints: slice [
+   slice [
+    int ( 1 )
+    int ( 4 )
    ]
-   slice[
-    int(3)
+   slice [
+    int ( 3 )
    ]
   ]
-  Maps:map[
-   "aa":"hi world" "bb":"bye world"
+  Maps: map [
+   "aa": "hi world"
+   "bb": "bye world"
   ]
-  B:bool(true)
+  B: bool ( true )
  }
  "{
-  "Msg":"Display a friendly fmt for golang"
- ,"Stru":[
+  "Msg": "Display a friendly fmt for golang"
+ ,"Msg2": "hello all"
+ ,"Msg3": "hello all2"
+ ,"Msg4": "hello all hello all hello all hello all hello all hello all "
+ ,"Stru": [
    {
-    "Msg":"","AA":[
-     0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+    "Msg": ""
+   ,"AA": [
+     0
+    ,0
+    ,0
+    ,0
+    ,0
     ]
    }
   ,{
-    "Msg":"Test","AA":[
-     2222,3333,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-    ,0,0,0
+    "Msg": "Test"
+   ,"AA": [
+     2222
+    ,3333
+    ,0
+    ,0
+    ,0
     ]
    }
   ]
- ,"Floats":[
-   2.1,3.3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-  ,0,0
+ ,"Floats": [
+   2.1
+  ,3.3
+  ,0
+  ,0
+  ,0
   ]
- ,"Ints":[
+ ,"Ints": [
    [
-    1,4
+    1
+   ,4
    ]
   ,[
     3
    ]
   ]
- ,"Maps":{
-   "aa":"hi world","bb":"bye world"
+ ,"Maps": {
+   "aa": "hi world"
+  ,"bb": "bye world"
   }
- ,"B":true
- }"
+ ,"B": true
+ }
+ "
 ]
---- PASS: Test_fmt (0.00s)
+ --- PASS: Test_fmt (0.00s)
 === RUN   Test_Now
-time.Time{
- 2015-11-23 22:30:51.2281819 +0800 CST
-}
---- PASS: Test_Now (0.00s)
+time.Time < 2016-01-05 23: 35: 07.3397014 +0800 CST >
+ 
+< invalid >
+ --- PASS: Test_Now (0.00s)
 PASS
-ok  	github.com/wzshiming/ffmt	0.033s
-
+ok  	github.com/wzshiming/ffmt	0.035s
 ```
 
 
