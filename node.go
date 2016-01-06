@@ -65,7 +65,7 @@ func getDepth(a string) (i int) {
 }
 
 func stringToNode(a string) (o *node) {
-	ss := strings.Split(Fmt(a), "\n")
+	ss := strings.Split(Fmt(a, 0, 0), "\n")
 	depth := 0
 	o = &node{}
 	e := o

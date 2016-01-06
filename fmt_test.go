@@ -9,8 +9,9 @@ import (
 
 func Test_fmt(t *testing.T) {
 	js, _ := json.Marshal(Test1)
-	P(Test1, string(js))
-
+	Print(string(js))
+	Puts(Test1)
+	P(Test1)
 }
 
 var Test1 = struct {
@@ -30,8 +31,8 @@ var Test1 = struct {
 	B      bool
 }{
 	"Display a friendly fmt for golang",
-	"hello all",
-	"hello all2",
+	"你好",
+	"",
 	"hello all hello all hello all hello all hello all hello all ",
 	"Display ",
 	[]struct {

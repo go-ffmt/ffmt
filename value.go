@@ -3,16 +3,17 @@ package ffmt
 import (
 	"fmt"
 	"reflect"
+	"strings"
 )
 
 var DepthMax = 20
 
 const (
-	invalid = "<invalid>"
-	private = "<private>"
+	invalid = "<invalid> "
+	private = "<private> "
 )
 
-func ToString(depth int, b bool, i ...interface{}) (ret string) {
+func ToString(depth int, b int, i ...interface{}) (ret string) {
 	switch len(i) {
 	case 0:
 		return invalid
@@ -29,7 +30,7 @@ func ToString(depth int, b bool, i ...interface{}) (ret string) {
 	}
 }
 
-func toString(va reflect.Value, depth int, b bool) (ret string) {
+func toString(va reflect.Value, depth int, b int) (ret string) {
 
 	if !va.IsValid() {
 		return invalid
@@ -40,6 +41,9 @@ func toString(va reflect.Value, depth int, b bool) (ret string) {
 	}
 
 	for v.Kind() == reflect.Ptr {
+		if s := getString(va); s != "" {
+			return ret + s
+		}
 		v = v.Elem()
 		ret += "&"
 	}
@@ -54,7 +58,7 @@ func toString(va reflect.Value, depth int, b bool) (ret string) {
 	case reflect.Array, reflect.Slice:
 		ret += sliceToString(v, depth, b)
 	case reflect.String:
-		ret += "\"" + v.String() + "\""
+		ret += stringToString(v, b)
 	case reflect.Func:
 		ret += funcToString(v)
 	case reflect.Chan, reflect.Uintptr, reflect.Ptr, reflect.UnsafePointer:
@@ -66,14 +70,28 @@ func toString(va reflect.Value, depth int, b bool) (ret string) {
 	return
 }
 
-func toDefault(v reflect.Value, b bool) (ret string) {
-	if b {
+func toDefault(v reflect.Value, b int) (ret string) {
+	if b == 1 {
 		ret += getName(v, b)
 		ret += "("
 	}
 	ret += fmt.Sprint(v.Interface())
-	if b {
+	if b == 1 {
 		ret += ")"
+	}
+	return
+}
+
+func stringToString(v reflect.Value, b int) (ret string) {
+	if b == 1 {
+		ret += toDefault(v, b)
+	} else if b == 2 {
+		ret += v.String()
+	} else {
+		ret += `"`
+		ret += strings.Replace(v.String(), `"`, `'`, -1)
+		ret += `"`
+
 	}
 	return
 }
@@ -110,7 +128,7 @@ func pointerToString(v reflect.Value) (ret string) {
 	return fmt.Sprintf("%s(0x%020x) ", v.Kind().String(), v.Pointer())
 }
 
-func structToString(v reflect.Value, depth int, b bool) (ret string) {
+func structToString(v reflect.Value, depth int, b int) (ret string) {
 	ret += getName(v, b)
 
 	cs := getString(v)
@@ -138,7 +156,7 @@ func structToString(v reflect.Value, depth int, b bool) (ret string) {
 	return
 }
 
-func mapToString(v reflect.Value, depth int, b bool) (ret string) {
+func mapToString(v reflect.Value, depth int, b int) (ret string) {
 	mk := v.MapKeys()
 	ret += getName(v, b)
 	ret += "["
@@ -153,7 +171,7 @@ func mapToString(v reflect.Value, depth int, b bool) (ret string) {
 	return
 }
 
-func sliceToString(v reflect.Value, depth int, b bool) (ret string) {
+func sliceToString(v reflect.Value, depth int, b int) (ret string) {
 	ret += getName(v, b)
 	ret += "["
 	for i := 0; i != v.Len(); i++ {
@@ -176,8 +194,8 @@ func getString(v reflect.Value) string {
 	return ""
 }
 
-func getName(v reflect.Value, b bool) (ret string) {
-	if !b {
+func getName(v reflect.Value, b int) (ret string) {
+	if b != 1 {
 		return ""
 	}
 	t := v.Type()
