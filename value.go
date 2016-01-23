@@ -1,6 +1,7 @@
 package ffmt
 
 import (
+	"bytes"
 	"fmt"
 	"reflect"
 	"strings"
@@ -14,15 +15,19 @@ const (
 )
 
 func ToString(depth int, b int, i ...interface{}) (ret string) {
+
+	sb := &sbuf{}
 	switch len(i) {
 	case 0:
 		return invalid
 	case 1:
-		return toString(reflect.ValueOf(i[0]), depth, b)
+		sb.toString(reflect.ValueOf(i[0]), depth, b)
+		return sb.String()
 	default:
 		ret += "["
 		for k := 0; k != len(i); k++ {
-			ret += toString(reflect.ValueOf(i[k]), depth, b)
+			sb.toString(reflect.ValueOf(i[k]), depth, b)
+			ret += sb.String()
 			ret += " "
 		}
 		ret += "]"
@@ -30,73 +35,81 @@ func ToString(depth int, b int, i ...interface{}) (ret string) {
 	}
 }
 
-func toString(va reflect.Value, depth int, b int) (ret string) {
+type sbuf struct {
+	bytes.Buffer
+}
+
+func (s *sbuf) toString(va reflect.Value, depth int, b int) {
 
 	if !va.IsValid() {
-		return invalid
+		s.WriteString(invalid)
+		return
 	}
 	v := va
 	if depth <= 0 {
-		return toDefault(v, b)
+		s.toDefault(v, b)
+		return
 	}
 
 	for v.Kind() == reflect.Ptr {
-		if s := getString(va); s != "" {
-			return ret + s
+		if r := getString(va); r != "" {
+			s.WriteString(r)
+			return
 		}
 		v = v.Elem()
-		ret += "&"
+		s.WriteByte('&')
 	}
 	depth--
 	switch v.Kind() {
 	case reflect.Invalid:
-		ret += getName(v, b) + invalid
+		s.getName(v, b)
+		s.WriteString(invalid)
 	case reflect.Struct:
-		ret += structToString(v, depth, b)
+		s.structToString(v, depth, b)
 	case reflect.Map:
-		ret += mapToString(v, depth, b)
+		s.mapToString(v, depth, b)
 	case reflect.Array, reflect.Slice:
-		ret += sliceToString(v, depth, b)
+		s.sliceToString(v, depth, b)
 	case reflect.String:
-		ret += stringToString(v, b)
+		s.stringToString(v, b)
 	case reflect.Func:
-		ret += funcToString(v)
+		s.funcToString(v)
 	case reflect.Chan, reflect.Uintptr, reflect.Ptr, reflect.UnsafePointer:
-		ret += pointerToString(v)
+		s.pointerToString(v)
 	default:
-		ret += toDefault(v, b)
+		s.toDefault(v, b)
 
 	}
 	return
 }
 
-func toDefault(v reflect.Value, b int) (ret string) {
+func (s *sbuf) toDefault(v reflect.Value, b int) {
 	if b == 1 {
-		ret += getName(v, b)
-		ret += "("
+		s.getName(v, b)
+		s.WriteByte('(')
 	}
-	ret += fmt.Sprint(v.Interface())
+	s.WriteString(fmt.Sprint(v.Interface()))
 	if b == 1 {
-		ret += ")"
+		s.WriteByte(')')
 	}
 	return
 }
 
-func stringToString(v reflect.Value, b int) (ret string) {
+func (s *sbuf) stringToString(v reflect.Value, b int) {
 	if b == 1 {
-		ret += toDefault(v, b)
+		s.toDefault(v, b)
 	} else if b == 2 {
-		ret += v.String()
+		s.WriteString(v.String())
 	} else {
-		ret += `"`
-		ret += strings.Replace(v.String(), `"`, `'`, -1)
-		ret += `"`
+		s.WriteByte('"')
+		s.WriteString(strings.Replace(v.String(), `"`, `'`, -1))
+		s.WriteByte('"')
 
 	}
 	return
 }
 
-func funcToString(v reflect.Value) (ret string) {
+func (s *sbuf) funcToString(v reflect.Value) {
 	t := v.Type()
 	in := ""
 	if t.NumIn() != 0 {
@@ -121,64 +134,83 @@ func funcToString(v reflect.Value) (ret string) {
 		}
 	}
 
-	return fmt.Sprintf("< func(%s)(%s)(0x%020x) > ", in, out, v.Pointer())
+	s.WriteString(fmt.Sprintf("< func(%s)(%s)(0x%020x) > ", in, out, v.Pointer()))
+	return
 }
 
-func pointerToString(v reflect.Value) (ret string) {
-	return fmt.Sprintf("%s(0x%020x) ", v.Kind().String(), v.Pointer())
+func (s *sbuf) pointerToString(v reflect.Value) {
+	s.WriteString(fmt.Sprintf("%s(0x%020x) ", v.Kind().String(), v.Pointer()))
+	return
 }
 
-func structToString(v reflect.Value, depth int, b int) (ret string) {
-	ret += getName(v, b)
-
+func (s *sbuf) structToString(v reflect.Value, depth int, b int) {
+	s.getName(v, b)
 	cs := getString(v)
 	if cs != "" {
-		ret += "< "
-		ret += cs
-		ret += " >"
+		s.WriteByte('<')
+		s.WriteString(cs)
+		s.WriteByte('>')
 	} else {
-		ret += "{"
-		v.FieldByNameFunc(func(n string) bool {
-			ret += n
-			ret += ":"
-			v0 := v.FieldByName(n)
+		s.WriteByte('{')
+		t := v.Type()
+		for i := 0; i != t.NumField(); i++ {
+			f := t.Field(i)
+			s.WriteString(f.Name)
+			s.WriteByte(':')
+			v0 := v.Field(i)
 			if v0.CanInterface() {
-				ret += toString(v0, depth, b)
-				ret += " "
+				s.toString(v0, depth, b)
+				s.WriteByte(' ')
 			} else {
-				ret += private
+				s.WriteString(private)
 			}
-			return false
-		})
-		ret += "}"
+		}
+		s.WriteByte('}')
 	}
-
 	return
 }
 
-func mapToString(v reflect.Value, depth int, b int) (ret string) {
+func (s *sbuf) mapToString(v reflect.Value, depth int, b int) {
 	mk := v.MapKeys()
-	ret += getName(v, b)
-	ret += "["
+	s.getName(v, b)
+	s.WriteByte('[')
 	for i := 0; i != len(mk); i++ {
 		k := mk[i]
-		ret += toString(k, 2, b)
-		ret += ":"
-		ret += toString(v.MapIndex(k), depth, b)
-		ret += " "
+		s.toString(k, 2, b)
+		s.WriteByte(':')
+		s.toString(v.MapIndex(k), depth, b)
+		s.WriteByte(' ')
 	}
-	ret += "]"
+	s.WriteByte(']')
 	return
 }
 
-func sliceToString(v reflect.Value, depth int, b int) (ret string) {
-	ret += getName(v, b)
-	ret += "["
+func (s *sbuf) sliceToString(v reflect.Value, depth int, b int) {
+	s.getName(v, b)
+	s.WriteByte('[')
 	for i := 0; i != v.Len(); i++ {
-		ret += toString(v.Index(i), depth, b)
-		ret += " "
+		s.toString(v.Index(i), depth, b)
+		s.WriteByte(' ')
 	}
-	ret += "]"
+	s.WriteByte(']')
+	return
+}
+
+func (s *sbuf) getName(v reflect.Value, b int) {
+	if b != 1 {
+		return
+	}
+	t := v.Type()
+	if t.PkgPath() != "" {
+		s.WriteString(t.PkgPath())
+		s.WriteByte('.')
+	}
+
+	if t.Name() != "" {
+		s.WriteString(t.Name())
+	} else {
+		s.WriteString(t.Kind().String())
+	}
 	return
 }
 
@@ -192,22 +224,4 @@ func getString(v reflect.Value) string {
 		return e.GoString()
 	}
 	return ""
-}
-
-func getName(v reflect.Value, b int) (ret string) {
-	if b != 1 {
-		return ""
-	}
-	t := v.Type()
-	if t.PkgPath() != "" {
-		ret += t.PkgPath()
-		ret += "."
-	}
-
-	if t.Name() != "" {
-		ret += t.Name()
-	} else {
-		ret += t.Kind().String()
-	}
-	return
 }
