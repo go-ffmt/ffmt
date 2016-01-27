@@ -30,6 +30,7 @@ var Test1 = struct {
 	Maps   map[string]string
 	B      bool
 }{
+
 	"Display a friendly fmt for golang",
 	"你好",
 	"",

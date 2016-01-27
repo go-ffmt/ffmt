@@ -15,7 +15,7 @@ func Puts(a ...interface{}) (int, error) {
 }
 
 func Sputs(a ...interface{}) string {
-	return Fmt(ToString(DepthMax, 0, a...), 0, 0)
+	return stringToNode(fmts(toString(DepthMax, sputs, a...), 0, 0)).String()
 }
 
 // P 系列 更改风格 显示完整的类型
@@ -28,7 +28,7 @@ func P(a ...interface{}) (int, error) {
 }
 
 func Sp(a ...interface{}) string {
-	return Fmt(ToString(DepthMax, 1, a...), 0, 0)
+	return stringToNode(fmts(toString(DepthMax, sp, a...), 0, 0)).String()
 }
 
 // Print 系列 默认风格 显示有点糟糕 用来格式化json 还是不错的
@@ -41,5 +41,5 @@ func Print(a ...interface{}) (int, error) {
 }
 
 func Sprint(a ...interface{}) string {
-	return Fmt(ToString(DepthMax, 2, a...), WidthMax, LineMax)
+	return stringToNode(fmts(toString(DepthMax, sprint, a...), 0, 0)).String()
 }
