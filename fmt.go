@@ -10,14 +10,14 @@ var (
 	reg         = regexp.MustCompile(`([\w\.]+)|('[^']*')|("[^"]*")|(<[^<>]*>)|(\([^\(]*\))|.`)
 	regpro      = regexp.MustCompile(`[\[\{]`)
 	regsuf      = regexp.MustCompile(`[\]\}]`)
-	regstrip    = regexp.MustCompile(`[\s,]+`)                             // json字符串前缀逗好
-	regstrippro = regexp.MustCompile(`([\(\[\{<])\s*`)                     // 设置左括号右边空一格
-	regstripsuf = regexp.MustCompile(`\s*([\)\]\}>])`)                     // 设置右括号左边空一格
-	regspar     = regexp.MustCompile(`\s+`)                                // 删除多余空格
-	regtrim     = regexp.MustCompile(`[\n\s*]+\n`)                         // 删除多余行
-	regcolon    = regexp.MustCompile(`:\s*`)                               // 冒号后面空一格
-	regbracket  = regexp.MustCompile(`([^\[\{\(\<\s,\"])\s*([\[\{\(\<:])`) // 左括号顶到空一格
-	regempty    = regexp.MustCompile(`([\[\{\(])\s+([\]\}\)])`)            // 如果 括号之间没有东西 去除括号之间的空格
+	regstrip    = regexp.MustCompile(`[\s,]+`)                            // json字符串前缀逗好
+	regstrippro = regexp.MustCompile(`([\(\[\{<])\s*`)                    // 设置左括号右边空一格
+	regstripsuf = regexp.MustCompile(`\s*([\)\]\}>])`)                    // 设置右括号左边空一格
+	regspar     = regexp.MustCompile(`\s+`)                               // 删除多余空格
+	regtrim     = regexp.MustCompile(`[\n\s]+\n`)                         // 删除多余行
+	regcolon    = regexp.MustCompile(`:\s+`)                              // 冒号后面空一格
+	regbracket  = regexp.MustCompile(`([^\[\{\(\<\s,\"])\s*([\[\{\(\<])`) // 左括号顶到空一格
+	regempty    = regexp.MustCompile(`([\[\{\(])\s+([\]\}\)])`)           // 如果 括号之间没有东西 去除括号之间的空格
 )
 
 func spac(depth int) string {
@@ -44,9 +44,10 @@ func strip(a string) (b string) {
 
 func trim(a string) (b string) {
 	b = a
-	b = regcolon.ReplaceAllString(b, ": ")
 	b = regempty.ReplaceAllString(b, "$1$2")
-	b = regbracket.ReplaceAllString(b, "$1$2")
+	b = regbracket.ReplaceAllString(b, "$1 $2")
+	b = regcolon.ReplaceAllString(b, ": ")
+	b += "\n"
 	return
 }
 
@@ -81,11 +82,14 @@ func fmts(a string, widthMax, lineMax int) string {
 			depth--
 			width = widthMax
 		} else {
+			if b == ":" {
+				b += " "
+			}
 			out = b
 		}
 		line += len(b)
 		width += len(out)
 		return
 	})
-	return trim(ret)
+	return moveSpac(trim(ret))
 }

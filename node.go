@@ -36,7 +36,7 @@ func (n *node) colonPos() {
 	}
 	for next := n; next != nil; next = next.next {
 		if next.colon > 0 && m-next.colon > 0 {
-			next.value = strings.Replace(next.value, ":", ":"+spac(m-next.colon), 1)
+			next.value = strings.Replace(next.value, ": ", ": "+spac(m-next.colon), 1)
 		}
 		if next.child != nil {
 			break
@@ -87,10 +87,9 @@ func getDepth(a string) int {
 	for i := 0; i != len(a); i++ {
 		switch a[i] {
 		case ' ':
-			continue
+
 		case ',':
-			i++
-			return i
+			return i + 1
 		default:
 			return i
 		}
@@ -105,7 +104,6 @@ func stringToNode(a string) (o *head) {
 	e := &o.node
 	for i := 0; i != len(ss); i++ {
 		b := ss[i]
-
 		d := getDepth(b)
 		if d == depth {
 			e = e.toNext()
@@ -113,15 +111,14 @@ func stringToNode(a string) (o *head) {
 			e = e.toChild()
 		} else if d < depth {
 			e = e.toParent()
-			e.child.colonPos()
 			if e != nil {
+				e.child.colonPos()
 				e = e.toNext()
 			}
 		}
 		depth = d
 		e.value = b
-		e.colon = strings.IndexByte(e.value, ':')
-
+		e.colon = strings.Index(e.value, ": ")
 		if max := d + len(e.value); max > o.max {
 			o.max = max
 		}
