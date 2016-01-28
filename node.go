@@ -42,21 +42,26 @@ type node struct {
 }
 
 func (n *node) colonPos() {
-	m := 0
-	for next := n; next != nil; next = next.next {
-		if next.colon > m {
-			m = next.colon
+
+	b := n
+	for b != nil {
+		m := 0
+		for next := b; next != nil; next = next.next {
+			if next.colon > m {
+				m = next.colon
+			}
+			if next.child != nil {
+				break
+			}
 		}
-		if next.child != nil {
-			break
-		}
-	}
-	for next := n; next != nil; next = next.next {
-		if next.colon > 0 && m-next.colon > 0 {
-			next.value = strings.Replace(next.value, ": ", ": "+spac(m-next.colon), 1)
-		}
-		if next.child != nil {
-			break
+		for next := b; next != nil; next = next.next {
+			if next.colon > 0 && m-next.colon > 0 {
+				next.value = strings.Replace(next.value, ": ", ": "+spac(m-next.colon), 1)
+			}
+			b = next.next
+			if next.child != nil {
+				break
+			}
 		}
 	}
 	return

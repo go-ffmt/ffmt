@@ -10,25 +10,23 @@ go test -v github.com/wzshiming/ffmt
 ```
 === RUN   Test_fmt
 {
-  "Msg2":   "你好"
- ,"Floats": [
-    2.1
-   ,3.3
-   ,0
-   ,0
-   ,0
-  ]
- ,"Msg4": "hello all hello all hello all hello all hello all hello all "
- ,"Stru": [
+  "Msg3":  ""
+ ,"B":     true
+ ,"T":     "2016-01-28 15:28:58.0378102 +0800 CST"
+ ,"Inter": "func(string)(int)(0x00000000000000485e50)"
+ ,"Msg":   "Display a friendly fmt for golang"
+ ,"Msg2":  "你好"
+ ,"Msg4":  "hello all hello all hello all hello all hello all hello all "
+ ,"Stru":  [
     {
-      "AA": [
+      "Msg": ""
+     ,"AA":  [
         0
        ,0
        ,0
        ,0
        ,0
       ]
-     ,"Msg": ""
     }
    ,{
       "Msg": "Test"
@@ -40,6 +38,13 @@ go test -v github.com/wzshiming/ffmt
        ,0
       ]
     }
+  ]
+ ,"Floats": [
+    2.1
+   ,3.3
+   ,0
+   ,0
+   ,0
   ]
  ,"Ints": [
     [
@@ -54,10 +59,7 @@ go test -v github.com/wzshiming/ffmt
     "aa": "hi world"
    ,"bb": "bye world"
   }
- ,"B": true
- ,"T": "2016-01-28 14:52:51.2765128 +0800 CST"
- ,"Msg": "Display a friendly fmt for golang"
- ,"Msg3": ""
+ ,"Chan": "chan(0x0000000000c08205a000)"
 }
 {
   Msg:  Display a friendly fmt for golang
@@ -104,11 +106,13 @@ go test -v github.com/wzshiming/ffmt
     ]
   ]
   Maps: {
-    bb: bye world
     aa: hi world
+    bb: bye world
   }
-  B: true
-  T: <2016-01-28 14:52:51.2765128 +0800 CST>
+  B:     true
+  T:     <2016-01-28 15:28:58.0378102 +0800 CST>
+  Inter: <func(string)(int)(0x00000000000000485e50)>
+  Chan:  <chan(0x0000000000c08205a000)>
 }
 {
   Msg:  "Display a friendly fmt for golang"
@@ -158,8 +162,10 @@ go test -v github.com/wzshiming/ffmt
     "aa": "hi world"
     "bb": "bye world"
   }
-  B: true
-  T: <2016-01-28 14:52:51.2765128 +0800 CST>
+  B:     true
+  T:     <2016-01-28 15:28:58.0378102 +0800 CST>
+  Inter: <func(string)(int)(0x00000000000000485e50)>
+  Chan:  <chan(0x0000000000c08205a000)>
 }
 struct{
   Msg:  string(Display a friendly fmt for golang)
@@ -209,12 +215,14 @@ struct{
     string(aa): string(hi world)
     string(bb): string(bye world)
   }
-  B: bool(true)
-  T: <2016-01-28 14:52:51.2765128 +0800 CST>
+  B:     bool(true)
+  T:     <2016-01-28 15:28:58.0378102 +0800 CST>
+  Inter: <func(string)(int)(0x00000000000000485e50)>
+  Chan:  <chan(0x0000000000c08205a000)>
 }
 --- PASS: Test_fmt (0.00s)
 PASS
-ok  	github.com/wzshiming/ffmt	0.026s
+ok  	github.com/wzshiming/ffmt	0.027s
 ```
 
 

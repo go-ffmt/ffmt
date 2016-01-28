@@ -183,9 +183,13 @@ func (s *sbuf) func2String(v reflect.Value) {
 
 	switch s.style {
 	case sjson:
-		s.WriteString(fmt.Sprintf("\"func(%s)(%s)(0x%020x)\"", in, out, v.Pointer()))
+		s.WriteByte('"')
+		s.WriteString(fmt.Sprintf("func(%s)(%s)(0x%020x)", in, out, v.Pointer()))
+		s.WriteByte('"')
 	default:
-		s.WriteString(fmt.Sprintf("<func(%s)(%s)(0x%020x)>", in, out, v.Pointer()))
+		s.WriteByte('<')
+		s.WriteString(fmt.Sprintf("func(%s)(%s)(0x%020x)", in, out, v.Pointer()))
+		s.WriteByte('>')
 	}
 	return
 }
@@ -193,9 +197,15 @@ func (s *sbuf) func2String(v reflect.Value) {
 func (s *sbuf) pointer2String(v reflect.Value) {
 	switch s.style {
 	case sjson:
-		s.WriteString(fmt.Sprintf("\"%s(0x%020x)\"", v.Kind().String(), v.Pointer()))
+		s.WriteByte('"')
+		s.WriteString(v.Kind().String())
+		s.WriteString(fmt.Sprintf("(0x%020x)", v.Pointer()))
+		s.WriteByte('"')
 	default:
-		s.WriteString(fmt.Sprintf("%s(0x%020x)", v.Kind().String(), v.Pointer()))
+		s.WriteByte('<')
+		s.WriteString(v.Kind().String())
+		s.WriteString(fmt.Sprintf("(0x%020x)", v.Pointer()))
+		s.WriteByte('>')
 	}
 	return
 }

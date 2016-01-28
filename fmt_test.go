@@ -29,6 +29,8 @@ var Test1 = struct {
 	Maps   map[string]string
 	B      bool
 	T      time.Time
+	Inter  interface{}
+	Chan   interface{}
 }{
 
 	"Display a friendly fmt for golang",
@@ -51,4 +53,6 @@ var Test1 = struct {
 	},
 	true,
 	time.Now(),
+	func(string) int { return 0 },
+	make(chan int, 10),
 }
