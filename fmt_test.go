@@ -28,6 +28,7 @@ var Test1 = struct {
 	Ints   [][]int
 	Maps   map[string]string
 	B      bool
+	T      time.Time
 }{
 
 	"Display a friendly fmt for golang",
@@ -49,9 +50,5 @@ var Test1 = struct {
 		"bb": "bye world",
 	},
 	true,
-}
-
-func Test_Now(t *testing.T) {
-	P(time.Now())
-
+	time.Now(),
 }

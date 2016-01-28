@@ -293,9 +293,16 @@ func (s *sbuf) getName(v reflect.Value) {
 }
 func (s *sbuf) getString(v reflect.Value) bool {
 	if r := getString(v); r != "" {
-		s.WriteByte('<')
-		s.WriteString(r)
-		s.WriteByte('>')
+		switch s.style {
+		case sjson:
+			s.WriteByte('"')
+			s.WriteString(r)
+			s.WriteByte('"')
+		default:
+			s.WriteByte('<')
+			s.WriteString(r)
+			s.WriteByte('>')
+		}
 		return true
 	}
 	return false

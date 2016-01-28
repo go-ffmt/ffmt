@@ -1,3 +1,4 @@
+# 更加友好的显示数据类型的golang库
 # Display a friendly fmt for golang
 
 
@@ -9,18 +10,25 @@ go test -v github.com/wzshiming/ffmt
 ```
 === RUN   Test_fmt
 {
-  "Msg3": ""
+  "Msg2":   "你好"
+ ,"Floats": [
+    2.1
+   ,3.3
+   ,0
+   ,0
+   ,0
+  ]
  ,"Msg4": "hello all hello all hello all hello all hello all hello all "
  ,"Stru": [
     {
-      "Msg": ""
-     ,"AA":  [
+      "AA": [
         0
        ,0
        ,0
        ,0
        ,0
       ]
+     ,"Msg": ""
     }
    ,{
       "Msg": "Test"
@@ -32,13 +40,6 @@ go test -v github.com/wzshiming/ffmt
        ,0
       ]
     }
-  ]
- ,"Floats": [
-    2.1
-   ,3.3
-   ,0
-   ,0
-   ,0
   ]
  ,"Ints": [
     [
@@ -54,8 +55,9 @@ go test -v github.com/wzshiming/ffmt
    ,"bb": "bye world"
   }
  ,"B": true
+ ,"T": "2016-01-28 14:52:51.2765128 +0800 CST"
  ,"Msg": "Display a friendly fmt for golang"
- ,"Msg2": "你好"
+ ,"Msg3": ""
 }
 {
   Msg:  Display a friendly fmt for golang
@@ -102,10 +104,11 @@ go test -v github.com/wzshiming/ffmt
     ]
   ]
   Maps: {
-    aa: hi world
     bb: bye world
+    aa: hi world
   }
   B: true
+  T: <2016-01-28 14:52:51.2765128 +0800 CST>
 }
 {
   Msg:  "Display a friendly fmt for golang"
@@ -152,10 +155,11 @@ go test -v github.com/wzshiming/ffmt
     ]
   ]
   Maps: {
-    "bb": "bye world"
     "aa": "hi world"
+    "bb": "bye world"
   }
   B: true
+  T: <2016-01-28 14:52:51.2765128 +0800 CST>
 }
 struct{
   Msg:  string(Display a friendly fmt for golang)
@@ -206,13 +210,11 @@ struct{
     string(bb): string(bye world)
   }
   B: bool(true)
+  T: <2016-01-28 14:52:51.2765128 +0800 CST>
 }
 --- PASS: Test_fmt (0.00s)
-=== RUN   Test_Now
-<2016-01-28 14:43:00.2733943 +0800 CST>
---- PASS: Test_Now (0.00s)
 PASS
-ok  	github.com/wzshiming/ffmt	0.030s
+ok  	github.com/wzshiming/ffmt	0.026s
 ```
 
 
