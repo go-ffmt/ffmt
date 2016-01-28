@@ -10,10 +10,27 @@ type head struct {
 	max int
 }
 
+func spac(depth int) string {
+	b := []byte{}
+	if depth > 0 {
+		for i := 0; i != depth; i++ {
+			b = append(b, ' ')
+		}
+	}
+	return string(b)
+}
+
+func spacing(depth int) string {
+	return "\n" + spac(depth)
+}
 func (n *head) String() string {
 	buf := bytes.Buffer{}
 	n.strings(0, &buf)
-	return moveSpac(buf.String())
+	s := buf.String()
+	if len(s) >= 2 {
+		return s[2:]
+	}
+	return ""
 }
 
 type node struct {
@@ -98,7 +115,7 @@ func getDepth(a string) int {
 }
 
 func stringToNode(a string) (o *head) {
-	ss := strings.Split(fmts(a, 0, 0), "\n")
+	ss := strings.Split(a, "\n")
 	depth := 0
 	o = &head{}
 	e := &o.node

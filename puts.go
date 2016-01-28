@@ -15,7 +15,7 @@ func Puts(a ...interface{}) (int, error) {
 }
 
 func Sputs(a ...interface{}) string {
-	return stringToNode(fmts(toString(DepthMax, sputs, a...), 0, 0)).String()
+	return stringToNode(toString(DepthMax, sputs, a...)).String()
 }
 
 // P 系列 更改风格 显示完整的类型
@@ -28,10 +28,10 @@ func P(a ...interface{}) (int, error) {
 }
 
 func Sp(a ...interface{}) string {
-	return stringToNode(fmts(toString(DepthMax, sp, a...), 0, 0)).String()
+	return stringToNode(toString(DepthMax, sp, a...)).String()
 }
 
-// Print 系列 默认风格 显示有点糟糕 用来格式化json 还是不错的
+// Print 系列 默认风格
 func Fprint(w io.Writer, a ...interface{}) (int, error) {
 	return fmt.Fprint(w, Sprint(a...))
 }
@@ -41,5 +41,18 @@ func Print(a ...interface{}) (int, error) {
 }
 
 func Sprint(a ...interface{}) string {
-	return stringToNode(fmts(toString(DepthMax, sprint, a...), 0, 0)).String()
+	return stringToNode(toString(DepthMax, sprint, a...)).String()
+}
+
+// Json 系列
+func Fjson(w io.Writer, a ...interface{}) (int, error) {
+	return fmt.Fprint(w, Sjson(a...))
+}
+
+func Json(a ...interface{}) (int, error) {
+	return fmt.Print(Sjson(a...))
+}
+
+func Sjson(a ...interface{}) string {
+	return stringToNode(toString(DepthMax, sjson, a...)).String()
 }

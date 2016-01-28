@@ -2,6 +2,7 @@ package ffmt
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
 	"reflect"
 	"strings"
@@ -10,8 +11,9 @@ import (
 var DepthMax = 20
 
 const (
-	invalid = "<nil> "
-	private = "<private> "
+	null    = "null"
+	invalid = "<nil>"
+	private = "<private>"
 )
 
 type stlye int
@@ -20,40 +22,41 @@ const (
 	sp stlye = iota + 1
 	sputs
 	sprint
+	sjson
 )
 
-func toString(depth int, b stlye, i ...interface{}) (ret string) {
-	sb := &sbuf{style: b}
+func toString(depth int, b stlye, i ...interface{}) string {
+	sb := &sbuf{style: b, depth: depth}
 	switch len(i) {
 	case 0:
-		return
+		return ""
 	case 1:
-		sb.fmt(reflect.ValueOf(i[0]), depth)
+		sb.fmt(reflect.ValueOf(i[0]), 0)
+		sb.WriteByte('\n')
 		return sb.String()
 	default:
-		sb.WriteByte('[')
-		for k := 0; k != len(i); k++ {
-			sb.fmt(reflect.ValueOf(i[k]), depth)
-			sb.WriteByte(' ')
-		}
-		sb.WriteByte(']')
-		return sb.String()
+		return toString(depth, b, i)
 	}
-	return
 }
 
 type sbuf struct {
 	bytes.Buffer
 	style stlye
+	depth int
 }
 
 func (s *sbuf) fmt(va reflect.Value, depth int) {
 	if !va.IsValid() {
-		s.WriteString(invalid)
+		switch s.style {
+		case sjson:
+			s.WriteString(null)
+		default:
+			s.WriteString(invalid)
+		}
 		return
 	}
 	v := va
-	if depth <= 0 {
+	if depth < 0 {
 		s.toDefault(v)
 		return
 	}
@@ -62,17 +65,34 @@ func (s *sbuf) fmt(va reflect.Value, depth int) {
 	}
 	for v.Kind() == reflect.Ptr {
 		v = v.Elem()
-		s.WriteByte('&')
+		if !v.IsValid() {
+			switch s.style {
+			case sjson:
+				s.WriteString(null)
+			default:
+				s.WriteString(invalid)
+			}
+			return
+		}
+		switch s.style {
+		case sjson:
+		default:
+			s.WriteByte('&')
+		}
 		if s.getString(va) {
 			return
 		}
 	}
-	depth--
 	switch v.Kind() {
 	case reflect.Invalid:
 		s.WriteString(invalid)
 	case reflect.Struct:
-		s.struct2String(v, depth)
+		switch s.style {
+		case sjson:
+			s.map2String(reflect.ValueOf(struct2Map(v)), depth)
+		default:
+			s.struct2String(v, depth)
+		}
 	case reflect.Map:
 		s.map2String(v, depth)
 	case reflect.Array, reflect.Slice:
@@ -83,10 +103,27 @@ func (s *sbuf) fmt(va reflect.Value, depth int) {
 		s.func2String(v)
 	case reflect.Chan, reflect.Uintptr, reflect.Ptr, reflect.UnsafePointer:
 		s.pointer2String(v)
+	case reflect.Interface:
+		v = v.Elem()
+		if v.IsValid() {
+			s.fmt(v, depth)
+		} else {
+			s.WriteString(null)
+		}
 	default:
 		s.toDefault(v)
 	}
 	return
+}
+
+func (s *sbuf) toDepth(i int) {
+	s.WriteByte('\n')
+	s.getSpace(i)
+}
+func (s *sbuf) getSpace(i int) {
+	for k := 0; k < i; k++ {
+		s.WriteByte(' ')
+	}
 }
 
 func (s *sbuf) toDefault(v reflect.Value) {
@@ -96,6 +133,9 @@ func (s *sbuf) toDefault(v reflect.Value) {
 		s.WriteByte('(')
 		s.WriteString(fmt.Sprint(v.Interface()))
 		s.WriteByte(')')
+	case sjson:
+		js, _ := json.Marshal(v.Interface())
+		s.WriteString(string(js))
 	default:
 		s.WriteString(fmt.Sprint(v.Interface()))
 	}
@@ -106,7 +146,7 @@ func (s *sbuf) string2String(v reflect.Value) {
 	switch s.style {
 	case sp:
 		s.toDefault(v)
-	case sputs:
+	case sputs, sjson:
 		s.WriteByte('"')
 		s.WriteString(strings.Replace(v.String(), `"`, `'`, -1))
 		s.WriteByte('"')
@@ -141,12 +181,22 @@ func (s *sbuf) func2String(v reflect.Value) {
 		}
 	}
 
-	s.WriteString(fmt.Sprintf("<func(%s)(%s)(0x%020x)> ", in, out, v.Pointer()))
+	switch s.style {
+	case sjson:
+		s.WriteString(fmt.Sprintf("\"func(%s)(%s)(0x%020x)\"", in, out, v.Pointer()))
+	default:
+		s.WriteString(fmt.Sprintf("<func(%s)(%s)(0x%020x)>", in, out, v.Pointer()))
+	}
 	return
 }
 
 func (s *sbuf) pointer2String(v reflect.Value) {
-	s.WriteString(fmt.Sprintf("%s(0x%020x) ", v.Kind().String(), v.Pointer()))
+	switch s.style {
+	case sjson:
+		s.WriteString(fmt.Sprintf("\"%s(0x%020x)\"", v.Kind().String(), v.Pointer()))
+	default:
+		s.WriteString(fmt.Sprintf("%s(0x%020x)", v.Kind().String(), v.Pointer()))
+	}
 	return
 }
 
@@ -154,18 +204,22 @@ func (s *sbuf) struct2String(v reflect.Value, depth int) {
 	s.getName(v)
 	s.WriteByte('{')
 	t := v.Type()
+
 	for i := 0; i != t.NumField(); i++ {
 		f := t.Field(i)
+		n := f.Name[0]
+		s.toDepth(depth + 1)
 		s.WriteString(f.Name)
 		s.WriteByte(':')
+		s.WriteByte(' ')
 		v0 := v.Field(i)
-		if v0.CanInterface() {
-			s.fmt(v0, depth)
-			s.WriteByte(' ')
-		} else {
+		if n < 'A' || n > 'Z' {
 			s.WriteString(private)
+		} else {
+			s.fmt(v0, depth+1)
 		}
 	}
+	s.toDepth(depth)
 	s.WriteByte('}')
 	return
 }
@@ -173,15 +227,28 @@ func (s *sbuf) struct2String(v reflect.Value, depth int) {
 func (s *sbuf) map2String(v reflect.Value, depth int) {
 	mk := v.MapKeys()
 	s.getName(v)
-	s.WriteByte('[')
+	s.WriteByte('{')
 	for i := 0; i != len(mk); i++ {
 		k := mk[i]
-		s.fmt(k, 2)
+		switch s.style {
+		case sjson:
+			if i != 0 {
+				s.toDepth(depth)
+				s.WriteByte(',')
+			} else {
+				s.toDepth(depth + 1)
+			}
+			s.fmt(k, 2)
+		default:
+			s.toDepth(depth + 1)
+			s.fmt(k, 2)
+		}
 		s.WriteByte(':')
-		s.fmt(v.MapIndex(k), depth)
 		s.WriteByte(' ')
+		s.fmt(v.MapIndex(k), depth+1)
 	}
-	s.WriteByte(']')
+	s.toDepth(depth)
+	s.WriteByte('}')
 	return
 }
 
@@ -189,9 +256,20 @@ func (s *sbuf) slice2String(v reflect.Value, depth int) {
 	s.getName(v)
 	s.WriteByte('[')
 	for i := 0; i != v.Len(); i++ {
-		s.fmt(v.Index(i), depth)
-		s.WriteByte(' ')
+		switch s.style {
+		case sjson:
+			if i != 0 {
+				s.toDepth(depth)
+				s.WriteByte(',')
+			} else {
+				s.toDepth(depth + 1)
+			}
+		default:
+			s.toDepth(depth + 1)
+		}
+		s.fmt(v.Index(i), depth+1)
 	}
+	s.toDepth(depth)
 	s.WriteByte(']')
 	return
 }
@@ -233,4 +311,19 @@ func getString(v reflect.Value) string {
 		return e.GoString()
 	}
 	return ""
+}
+
+func struct2Map(v reflect.Value) map[string]interface{} {
+	t := v.Type()
+	data := map[string]interface{}{}
+	for i := 0; i < t.NumField(); i++ {
+		f := t.Field(i)
+		n := f.Name[0]
+		if n < 'A' || n > 'Z' {
+
+		} else {
+			data[f.Name] = v.Field(i).Interface()
+		}
+	}
+	return data
 }

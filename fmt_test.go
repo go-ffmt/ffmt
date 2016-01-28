@@ -3,13 +3,12 @@ package ffmt
 import (
 	"time"
 
-	"encoding/json"
 	"testing"
 )
 
 func Test_fmt(t *testing.T) {
-	js, _ := json.Marshal(Test1)
-	Print(string(js))
+	Json(Test1)
+	Print(Test1)
 	Puts(Test1)
 	P(Test1)
 }
@@ -54,5 +53,5 @@ var Test1 = struct {
 
 func Test_Now(t *testing.T) {
 	P(time.Now())
-	P()
+
 }
