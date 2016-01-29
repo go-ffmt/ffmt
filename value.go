@@ -245,6 +245,8 @@ func (s *sbuf) struct2String(v reflect.Value, depth int) {
 
 func (s *sbuf) map2String(v reflect.Value, depth int) {
 	mk := v.MapKeys()
+	valueSlice(mk).Sort()
+
 	s.getName(v)
 	s.WriteByte('{')
 	for i := 0; i != len(mk); i++ {
@@ -346,9 +348,8 @@ func struct2Map(v reflect.Value) map[string]interface{} {
 		n := f.Name[0]
 		if n < 'A' || n > 'Z' {
 			continue
-		} else {
-			data[f.Name] = v.Field(i).Interface()
 		}
+		data[f.Name] = v.Field(i).Interface()
 	}
 	return data
 }

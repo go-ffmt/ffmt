@@ -43,8 +43,74 @@ type node struct {
 	colon  int
 }
 
-func (n *node) colonPos() {
+func (n *node) tablePos() {
+	ms := []int{}
+	sum := 0
+	b := n
+	max := 0
+	for next := b; next != nil; next = next.next {
+		if next.colon > 0 || next.child != nil {
+			return
+		}
+		ll := len(next.value)
+		ms = append(ms, ll)
+		sum += ll
+		if ll > max {
+			max = ll
+		}
+	}
 
+	if max < 10 {
+		n.merge(9, ms)
+	} else if max < 18 {
+		n.merge(5, ms)
+	} else if max < 30 {
+		n.merge(3, ms)
+	}
+}
+
+func (n *node) merge(m int, ms []int) {
+	l := len(ms)
+	col := 0
+	for i := 0; i != m; i++ {
+		z := m - i
+		if l > z && l%z == 0 {
+			col = z
+			break
+		}
+	}
+	if col > 1 {
+		n.mergeNextSize(col, ms)
+	}
+}
+
+func (n *node) mergeNextSize(s int, ms []int) {
+	lmax := make([]int, s)
+	for j := 0; j != s; j++ {
+		for i := 0; i*s < len(ms); i++ {
+			b := i*s + j
+			if ms[b] > lmax[j] {
+				lmax[j] = ms[b]
+			}
+		}
+	}
+	for i := 1; i < len(lmax); i++ {
+		lmax[i] += lmax[i-1]
+	}
+	for next := n; next != nil; next = next.next {
+		for i := 0; i < s-1 && next.next != nil; i++ {
+			next.mergeNext(lmax[i])
+		}
+	}
+}
+
+func (n *node) mergeNext(max int) {
+	n.value += spac(max - len(n.value))
+	n.value += n.next.value
+	n.next = n.next.next
+}
+
+func (n *node) colonPos() {
 	b := n
 	for b != nil {
 		m := 0
@@ -136,11 +202,15 @@ func stringToNode(a string) (o *head) {
 			e = e.toParent()
 			if e != nil {
 				e.child.colonPos()
+				e.child.tablePos()
 				e = e.toNext()
 			}
 		}
 		depth = d
-		e.value = b
+		if d > 0 {
+			d--
+		}
+		e.value = b[d:]
 		e.colon = strings.Index(e.value, colSym)
 		if max := d + len(e.value); max > o.max {
 			o.max = max
