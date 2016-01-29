@@ -8,7 +8,7 @@ import (
 	"strings"
 )
 
-var DepthMax = 20
+var DepthMax = 5
 
 const (
 	null    = "null"
@@ -26,11 +26,11 @@ const (
 )
 
 func toString(depth int, b stlye, i ...interface{}) string {
-	sb := &sbuf{style: b, depth: depth}
 	switch len(i) {
 	case 0:
 		return ""
 	case 1:
+		sb := &sbuf{style: b, depth: depth, buf: map[uintptr]bool{}}
 		sb.fmt(reflect.ValueOf(i[0]), 0)
 		sb.WriteByte('\n')
 		return sb.String()
@@ -43,6 +43,7 @@ type sbuf struct {
 	bytes.Buffer
 	style stlye
 	depth int
+	buf   map[uintptr]bool
 }
 
 func (s *sbuf) fmt(va reflect.Value, depth int) {
@@ -56,14 +57,23 @@ func (s *sbuf) fmt(va reflect.Value, depth int) {
 		return
 	}
 	v := va
-	if depth < 0 {
+	if depth >= DepthMax {
 		s.toDefault(v)
 		return
 	}
-	if s.getString(va) {
+
+	if s.getString(v) {
 		return
 	}
+
 	for v.Kind() == reflect.Ptr {
+		if s.buf[v.Pointer()] {
+			s.pointer2String(v)
+			return
+		} else {
+			s.buf[v.Pointer()] = true
+		}
+
 		v = v.Elem()
 		if !v.IsValid() {
 			switch s.style {
@@ -157,40 +167,40 @@ func (s *sbuf) string2String(v reflect.Value) {
 }
 
 func (s *sbuf) func2String(v reflect.Value) {
+	switch s.style {
+	case sjson:
+		s.WriteByte('"')
+		defer s.WriteByte('"')
+	default:
+		s.WriteByte('<')
+		defer s.WriteByte('>')
+	}
+	s.WriteString("func(")
 	t := v.Type()
-	in := ""
 	if t.NumIn() != 0 {
 		for i := 0; ; {
-			in += t.In(i).String()
+			s.WriteString(t.In(i).String())
 			i++
 			if i == t.NumIn() {
 				break
 			}
-			in += ","
+			s.WriteByte(',')
 		}
 	}
-	out := ""
+	s.WriteByte(')')
+	s.WriteByte('(')
 	if t.NumOut() != 0 {
 		for i := 0; ; {
-			out += t.Out(i).String()
+			s.WriteString(t.Out(i).String())
 			i++
 			if i == t.NumOut() {
 				break
 			}
-			out += ","
+			s.WriteByte(',')
 		}
 	}
-
-	switch s.style {
-	case sjson:
-		s.WriteByte('"')
-		s.WriteString(fmt.Sprintf("func(%s)(%s)(0x%020x)", in, out, v.Pointer()))
-		s.WriteByte('"')
-	default:
-		s.WriteByte('<')
-		s.WriteString(fmt.Sprintf("func(%s)(%s)(0x%020x)", in, out, v.Pointer()))
-		s.WriteByte('>')
-	}
+	s.WriteByte(')')
+	s.WriteString(fmt.Sprintf("(0x%020x)", v.Pointer()))
 	return
 }
 
@@ -198,15 +208,14 @@ func (s *sbuf) pointer2String(v reflect.Value) {
 	switch s.style {
 	case sjson:
 		s.WriteByte('"')
-		s.WriteString(v.Kind().String())
-		s.WriteString(fmt.Sprintf("(0x%020x)", v.Pointer()))
-		s.WriteByte('"')
+		defer s.WriteByte('"')
+
 	default:
 		s.WriteByte('<')
-		s.WriteString(v.Kind().String())
-		s.WriteString(fmt.Sprintf("(0x%020x)", v.Pointer()))
-		s.WriteByte('>')
+		defer s.WriteByte('>')
 	}
+	s.WriteString(v.Kind().String())
+	s.WriteString(fmt.Sprintf("(0x%020x)", v.Pointer()))
 	return
 }
 
@@ -248,11 +257,10 @@ func (s *sbuf) map2String(v reflect.Value, depth int) {
 			} else {
 				s.toDepth(depth + 1)
 			}
-			s.fmt(k, 2)
 		default:
 			s.toDepth(depth + 1)
-			s.fmt(k, 2)
 		}
+		s.fmt(k, DepthMax)
 		s.WriteByte(':')
 		s.WriteByte(' ')
 		s.fmt(v.MapIndex(k), depth+1)
@@ -337,7 +345,7 @@ func struct2Map(v reflect.Value) map[string]interface{} {
 		f := t.Field(i)
 		n := f.Name[0]
 		if n < 'A' || n > 'Z' {
-
+			continue
 		} else {
 			data[f.Name] = v.Field(i).Interface()
 		}

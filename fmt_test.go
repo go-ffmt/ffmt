@@ -7,6 +7,7 @@ import (
 )
 
 func Test_fmt(t *testing.T) {
+	Test1.TTT = &Test1
 	Json(Test1)
 	Print(Test1)
 	Puts(Test1)
@@ -29,7 +30,7 @@ var Test1 = struct {
 	Maps   map[string]string
 	B      bool
 	T      time.Time
-	Inter  interface{}
+	TTT    interface{}
 	Chan   interface{}
 }{
 
@@ -46,13 +47,13 @@ var Test1 = struct {
 		[5]int{2222, 3333},
 	}},
 	[5]float32{2.1, 3.3},
-	[][]int{{1, 4}, {3}},
+	[][]int{{1, 4}, {3}, {}},
 	map[string]string{
 		"aa": "hi world",
 		"bb": "bye world",
 	},
 	true,
 	time.Now(),
-	func(string) int { return 0 },
+	nil,
 	make(chan int, 10),
 }

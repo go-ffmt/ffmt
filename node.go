@@ -10,6 +10,8 @@ type head struct {
 	max int
 }
 
+const colSym = ": "
+
 func spac(depth int) string {
 	b := []byte{}
 	if depth > 0 {
@@ -56,7 +58,7 @@ func (n *node) colonPos() {
 		}
 		for next := b; next != nil; next = next.next {
 			if next.colon > 0 && m-next.colon > 0 {
-				next.value = strings.Replace(next.value, ": ", ": "+spac(m-next.colon), 1)
+				next.value = strings.Replace(next.value, colSym, colSym+spac(m-next.colon), 1)
 			}
 			b = next.next
 			if next.child != nil {
@@ -67,7 +69,7 @@ func (n *node) colonPos() {
 	return
 }
 
-func (n *node) strings(d int, buf *bytes.Buffer) (ret string) {
+func (n *node) strings(d int, buf *bytes.Buffer) {
 	buf.WriteString(spacing(d))
 	buf.WriteString(n.value)
 	if n.child != nil {
@@ -109,7 +111,6 @@ func getDepth(a string) int {
 	for i := 0; i != len(a); i++ {
 		switch a[i] {
 		case ' ':
-
 		case ',':
 			return i + 1
 		default:
@@ -140,7 +141,7 @@ func stringToNode(a string) (o *head) {
 		}
 		depth = d
 		e.value = b
-		e.colon = strings.Index(e.value, ": ")
+		e.colon = strings.Index(e.value, colSym)
 		if max := d + len(e.value); max > o.max {
 			o.max = max
 		}
