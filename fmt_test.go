@@ -1,17 +1,34 @@
 package ffmt
 
 import (
+	"math"
 	"time"
 
 	"testing"
 )
 
-func Test_fmt(t *testing.T) {
-	Test1.TTT = &Test1
-	Json(Test1)
+func TestFmtMap(t *testing.T) {
+	bl := math.Pi / 10
+	mm := map[interface{}]interface{}{}
+	mm["i"] = "cos(i)"
+	for i := float64(0); i <= 2*math.Pi; i += bl {
+		mm[i] = math.Cos(i)
+	}
+	Print(mm)
+}
+
+func TestFmtSlice(t *testing.T) {
+	bl := math.Pi / 10
+	mc := []interface{}{}
+	mc = append(mc, "\\", "i", "cos(i)")
+	for i := float64(0); i <= 2*math.Pi; i += bl {
+		mc = append(mc, i/bl+1, i, math.Cos(i))
+	}
+	Print(mc)
+}
+
+func TestFmtElse(t *testing.T) {
 	Print(Test1)
-	Puts(Test1)
-	P(Test1)
 }
 
 var Test1 = struct {

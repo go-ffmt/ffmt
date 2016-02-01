@@ -111,7 +111,9 @@ func (s *sbuf) fmt(va reflect.Value, depth int) {
 		s.string2String(v)
 	case reflect.Func:
 		s.func2String(v)
-	case reflect.Chan, reflect.Uintptr, reflect.Ptr, reflect.UnsafePointer:
+	case reflect.Uintptr, reflect.UnsafePointer:
+		s.x2string(v)
+	case reflect.Chan, reflect.Ptr:
 		s.pointer2String(v)
 	case reflect.Interface:
 		v = v.Elem()
@@ -204,6 +206,21 @@ func (s *sbuf) func2String(v reflect.Value) {
 	return
 }
 
+func (s *sbuf) x2string(v reflect.Value) {
+	switch s.style {
+	case sjson:
+		s.WriteByte('"')
+		defer s.WriteByte('"')
+
+	default:
+		s.WriteByte('<')
+		defer s.WriteByte('>')
+	}
+	s.WriteString(v.Kind().String())
+	s.WriteString(fmt.Sprintf("(0x%020x)", v.Uint()))
+	return
+}
+
 func (s *sbuf) pointer2String(v reflect.Value) {
 	switch s.style {
 	case sjson:
@@ -262,7 +279,7 @@ func (s *sbuf) map2String(v reflect.Value, depth int) {
 		default:
 			s.toDepth(depth + 1)
 		}
-		s.fmt(k, DepthMax)
+		s.fmt(k, DepthMax-1)
 		s.WriteByte(':')
 		s.WriteByte(' ')
 		s.fmt(v.MapIndex(k), depth+1)

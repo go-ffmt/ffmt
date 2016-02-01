@@ -23,7 +23,7 @@ func spac(depth int) string {
 }
 
 func spacing(depth int) string {
-	return "\n" + spac(depth)
+	return "\n" + spac(depth-1)
 }
 func (n *head) String() string {
 	buf := bytes.Buffer{}
@@ -41,6 +41,19 @@ type node struct {
 	next   *node
 	value  string
 	colon  int
+}
+
+func (n *node) lrPos() {
+	b := n
+	for next := b; next != nil && next.next != nil; next = next.next {
+		if next.child != nil {
+			continue
+		}
+		ss := next.next.value
+		if len(ss) == 2 && (ss[1] == ')' || ss[1] == ']' || ss[1] == '}') {
+			next.mergeNext(1)
+		}
+	}
 }
 
 func (n *node) tablePos() {
@@ -203,6 +216,7 @@ func stringToNode(a string) (o *head) {
 			if e != nil {
 				e.child.colonPos()
 				e.child.tablePos()
+				e.child.lrPos()
 				e = e.toNext()
 			}
 		}
