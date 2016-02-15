@@ -48,12 +48,7 @@ type sbuf struct {
 
 func (s *sbuf) fmt(va reflect.Value, depth int) {
 	if !va.IsValid() {
-		switch s.style {
-		case sjson:
-			s.WriteString(null)
-		default:
-			s.WriteString(invalid)
-		}
+		s.getNil()
 		return
 	}
 	v := va
@@ -76,12 +71,7 @@ func (s *sbuf) fmt(va reflect.Value, depth int) {
 
 		v = v.Elem()
 		if !v.IsValid() {
-			switch s.style {
-			case sjson:
-				s.WriteString(null)
-			default:
-				s.WriteString(invalid)
-			}
+			s.getNil()
 			return
 		}
 		switch s.style {
@@ -120,7 +110,7 @@ func (s *sbuf) fmt(va reflect.Value, depth int) {
 		if v.IsValid() {
 			s.fmt(v, depth)
 		} else {
-			s.WriteString(null)
+			s.getNil()
 		}
 	default:
 		s.toDefault(v)
@@ -132,9 +122,19 @@ func (s *sbuf) toDepth(i int) {
 	s.WriteByte('\n')
 	s.getSpace(i)
 }
+
 func (s *sbuf) getSpace(i int) {
 	for k := 0; k < i; k++ {
 		s.WriteByte(' ')
+	}
+}
+
+func (s *sbuf) getNil() {
+	switch s.style {
+	case sjson:
+		s.WriteString(null)
+	default:
+		s.WriteString(invalid)
 	}
 }
 

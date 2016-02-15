@@ -106,13 +106,13 @@ go test -v github.com/wzshiming/ffmt
   bb: bye world
  }
  B:    true
- T:    <2016-02-01 14:39:02.5309676 +0800 CST>
- TTT:  null
- Chan: <chan(0x0000000000c08205a000)>
+ T:    <2016-02-15 10:11:55.5487282 +0800 CST>
+ TTT:  <nil>
+ Chan: <chan(0x0000000000c082058000)>
 }
---- PASS: TestFmtElse (0.00s)
+--- PASS: TestFmtElse (0.01s)
 PASS
-ok  	github.com/wzshiming/ffmt	0.030s
+ok  	github.com/wzshiming/ffmt	0.033s
 ```
 
 
