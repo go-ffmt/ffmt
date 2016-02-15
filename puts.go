@@ -5,18 +5,7 @@ import (
 	"io"
 )
 
-// Puts 系列 更改风格
-func Fputs(w io.Writer, a ...interface{}) (int, error) {
-	return fmt.Fprint(w, Sputs(a...))
-}
-
-func Puts(a ...interface{}) (int, error) {
-	return fmt.Print(Sputs(a...))
-}
-
-func Sputs(a ...interface{}) string {
-	return stringToNode(toString(DepthMax, sputs, a...)).String()
-}
+var DepthMax = 5
 
 // P 系列 更改风格 显示完整的类型
 func Fp(w io.Writer, a ...interface{}) (int, error) {
@@ -28,7 +17,20 @@ func P(a ...interface{}) (int, error) {
 }
 
 func Sp(a ...interface{}) string {
-	return stringToNode(toString(DepthMax, sp, a...)).String()
+	return nodes(toString(DepthMax, sp, a...))
+}
+
+// Puts 系列 更改风格
+func Fputs(w io.Writer, a ...interface{}) (int, error) {
+	return fmt.Fprint(w, Sputs(a...))
+}
+
+func Puts(a ...interface{}) (int, error) {
+	return fmt.Print(Sputs(a...))
+}
+
+func Sputs(a ...interface{}) string {
+	return nodes(toString(DepthMax, sputs, a...))
 }
 
 // Print 系列 默认风格
@@ -41,18 +43,18 @@ func Print(a ...interface{}) (int, error) {
 }
 
 func Sprint(a ...interface{}) string {
-	return stringToNode(toString(DepthMax, sprint, a...)).String()
+	return nodes(toString(DepthMax, sprint, a...))
 }
 
-// Json 系列
-func Fjson(w io.Writer, a ...interface{}) (int, error) {
-	return fmt.Fprint(w, Sjson(a...))
+// Pjson 系列
+func Fpjson(w io.Writer, a ...interface{}) (int, error) {
+	return fmt.Fprint(w, Spjson(a...))
 }
 
-func Json(a ...interface{}) (int, error) {
-	return fmt.Print(Sjson(a...))
+func Pjson(a ...interface{}) (int, error) {
+	return fmt.Print(Spjson(a...))
 }
 
-func Sjson(a ...interface{}) string {
-	return stringToNode(toString(DepthMax, sjson, a...)).String()
+func Spjson(a ...interface{}) string {
+	return nodes(toString(DepthMax, spjson, a...))
 }

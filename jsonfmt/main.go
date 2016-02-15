@@ -13,18 +13,26 @@ func main() {
 	file := flag.String("f", "", "json file")
 	out := flag.String("o", "", "out file")
 	flag.Parse()
-	ret := ""
-	if *file != "" {
-		b, _ := ioutil.ReadFile(*file)
-		var i interface{}
-		json.Unmarshal(b, &i)
-		ret = ffmt.Sjson(i)
-		if *out != "" {
-			ioutil.WriteFile(*out, []byte(ret), 0777)
-		} else {
-			fmt.Print(ret)
-		}
-	} else {
+	if *file == "" {
 		flag.PrintDefaults()
+		return
 	}
+	b, err := ioutil.ReadFile(*file)
+	if err != nil {
+		flag.PrintDefaults()
+		return
+	}
+	var i interface{}
+	json.Unmarshal(b, &i)
+	ret := ffmt.Spjson(i)
+	if *out == "" {
+		fmt.Print(ret)
+		return
+	}
+	err = ioutil.WriteFile(*out, []byte(ret), 0777)
+	if err != nil {
+		flag.PrintDefaults()
+		return
+	}
+	return
 }

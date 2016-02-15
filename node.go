@@ -25,9 +25,12 @@ func spac(depth int) string {
 func spacing(depth int) string {
 	return "\n" + spac(depth-1)
 }
+
 func (n *head) String() string {
-	buf := bytes.Buffer{}
-	n.strings(0, &buf)
+	buf := pool.Get()
+	defer pool.Put(buf)
+	buf.Reset()
+	n.strings(0, buf)
 	s := buf.String()
 	if len(s) >= 2 {
 		return s[2:]
@@ -35,37 +38,39 @@ func (n *head) String() string {
 	return ""
 }
 
+// 这就是一个二叉树
 type node struct {
-	parent *node
-	child  *node
-	next   *node
-	value  string
-	colon  int
+	child *node         // 子节点 左
+	next  *node         // 下节点 右
+	value *bytes.Buffer // 数据
+	colon int           // 这是用冒号分割的数据 冒号的位置 用来对齐冒号后面的数据
 }
 
+// 缩进空的括号
 func (n *node) lrPos() {
 	b := n
-	for next := b; next != nil && next.next != nil; next = next.next {
-		if next.child != nil {
+	for x := b; x != nil && x.next != nil; x = x.next {
+		if x.child != nil {
 			continue
 		}
-		ss := next.next.value
+		ss := x.next.value.Bytes()
 		if len(ss) == 2 && (ss[1] == ')' || ss[1] == ']' || ss[1] == '}') {
-			next.mergeNext(1)
+			x.mergeNext(1)
 		}
 	}
 }
 
+// 对齐数组类型的数据
 func (n *node) tablePos() {
 	ms := []int{}
 	sum := 0
 	b := n
 	max := 0
-	for next := b; next != nil; next = next.next {
-		if next.colon > 0 || next.child != nil {
+	for x := b; x != nil; x = x.next {
+		if x.colon > 0 || x.child != nil {
 			return
 		}
-		ll := len(next.value)
+		ll := x.value.Len()
 		ms = append(ms, ll)
 		sum += ll
 		if ll > max {
@@ -110,19 +115,30 @@ func (n *node) mergeNextSize(s int, ms []int) {
 	for i := 1; i < len(lmax); i++ {
 		lmax[i] += lmax[i-1]
 	}
-	for next := n; next != nil; next = next.next {
-		for i := 0; i < s-1 && next.next != nil; i++ {
-			next.mergeNext(lmax[i])
+	for x := n; x != nil; x = x.next {
+		for i := 0; i < s-1 && x.next != nil; i++ {
+			x.mergeNext(lmax[i])
 		}
 	}
 }
 
+// 空格 写入缓冲
+func (n *node) spac(i int) {
+	for k := 0; k < i; k++ {
+		n.value.WriteByte(' ')
+	}
+	return
+}
+
+// 合并下一个节点到当前节点
 func (n *node) mergeNext(max int) {
-	n.value += spac(max - len(n.value))
-	n.value += n.next.value
+	n.spac(max - n.value.Len())
+	n.next.value.WriteTo(n.value)
+	pool.Put(n.next.value)
 	n.next = n.next.next
 }
 
+// 对齐冒号后面的数据
 func (n *node) colonPos() {
 	b := n
 	for b != nil {
@@ -135,12 +151,14 @@ func (n *node) colonPos() {
 				break
 			}
 		}
-		for next := b; next != nil; next = next.next {
-			if next.colon > 0 && m-next.colon > 0 {
-				next.value = strings.Replace(next.value, colSym, colSym+spac(m-next.colon), 1)
+		for x := b; x != nil; x = x.next {
+			if x.colon > 0 && m-x.colon > 0 {
+				t := strings.Replace(x.value.String(), colSym, colSym+spac(m-x.colon), 1)
+				x.value.Reset()
+				x.value.WriteString(t)
 			}
-			b = next.next
-			if next.child != nil {
+			b = x.next
+			if x.child != nil {
 				break
 			}
 		}
@@ -148,28 +166,36 @@ func (n *node) colonPos() {
 	return
 }
 
-func (n *node) strings(d int, buf *bytes.Buffer) {
-	buf.WriteString(spacing(d))
-	buf.WriteString(n.value)
-	if n.child != nil {
-		n.child.strings(d+1, buf)
+func (n *node) put() {
+	if n.value != nil {
+		pool.Put(n.value)
+		n.value = nil
 	}
-	if next := n.next; next != nil {
-		next.strings(d, buf)
+	if n.child != nil {
+		n.child.put()
+	}
+	if n.next != nil {
+		n.next.put()
 	}
 	return
 }
 
-func (n *node) toParent() (e *node) {
-	return n.parent
+func (n *node) strings(d int, buf *bytes.Buffer) {
+	buf.WriteString(spacing(d))
+	n.value.WriteTo(buf)
+	if n.child != nil {
+		n.child.strings(d+1, buf)
+	}
+	if x := n.next; x != nil {
+		x.strings(d, buf)
+	}
+	return
 }
 
 func (n *node) toChild() (e *node) {
 	if n.child == nil {
 		n.child = &node{
-			parent: n,
-			child:  nil,
-			next:   nil,
+			value: pool.Get(),
 		}
 	}
 	return n.child
@@ -178,9 +204,7 @@ func (n *node) toChild() (e *node) {
 func (n *node) toNext() (e *node) {
 	if n.next == nil {
 		n.next = &node{
-			parent: n.parent,
-			child:  nil,
-			next:   nil,
+			value: pool.Get(),
 		}
 	}
 	return n.next
@@ -203,32 +227,42 @@ func stringToNode(a string) (o *head) {
 	ss := strings.Split(a, "\n")
 	depth := 0
 	o = &head{}
-	e := &o.node
+	x := &o.node
+	x.value = pool.Get()
+	st := []*node{}
 	for i := 0; i != len(ss); i++ {
 		b := ss[i]
 		d := getDepth(b)
 		if d == depth {
-			e = e.toNext()
+			x = x.toNext()
 		} else if d > depth {
-			e = e.toChild()
+			st = append(st, x)
+			x = x.toChild()
 		} else if d < depth {
-			e = e.toParent()
-			if e != nil {
-				e.child.colonPos()
-				e.child.tablePos()
-				e.child.lrPos()
-				e = e.toNext()
+			x = st[len(st)-1]
+			if x != nil {
+				st = st[:len(st)-1]
+				x.child.colonPos()
+				x.child.tablePos()
+				x.child.lrPos()
+				x = x.toNext()
 			}
 		}
 		depth = d
 		if d > 0 {
 			d--
 		}
-		e.value = b[d:]
-		e.colon = strings.Index(e.value, colSym)
-		if max := d + len(e.value); max > o.max {
+		x.value.WriteString(b[d:])
+		x.colon = strings.Index(x.value.String(), colSym)
+		if max := d + x.value.Len(); max > o.max {
 			o.max = max
 		}
 	}
 	return o
+}
+
+func nodes(a string) string {
+	s := stringToNode(a)
+	defer s.put()
+	return s.String()
 }

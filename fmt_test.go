@@ -41,7 +41,6 @@ var Test1 = struct {
 		Msg string
 		AA  [8]int
 	}
-
 	Floats [6]float32
 	Ints   [][]int
 	Maps   map[string]string

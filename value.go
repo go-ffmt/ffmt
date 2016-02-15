@@ -8,21 +8,19 @@ import (
 	"strings"
 )
 
-var DepthMax = 5
-
 const (
-	null    = "null"
-	invalid = "<nil>"
-	private = "<private>"
+	invalidJson = "null"
+	invalid     = "<nil>"
+	private     = "<private>"
 )
 
 type stlye int
 
 const (
-	sp stlye = iota + 1
-	sputs
-	sprint
-	sjson
+	sp     stlye = iota + 1 // 显示完整的类型名和数据
+	sputs                   // 显示数据
+	sprint                  // 显示数据 字符串不加引号
+	spjson                  // 以json风格显示数据 不显示结构体私有项
 )
 
 func toString(depth int, b stlye, i ...interface{}) string {
@@ -30,30 +28,33 @@ func toString(depth int, b stlye, i ...interface{}) string {
 	case 0:
 		return ""
 	case 1:
-		sb := &sbuf{style: b, depth: depth, buf: map[uintptr]bool{}}
+		buf := pool.Get()
+		buf.Reset()
+		defer pool.Put(buf)
+		sb := &format{buf: buf, style: b, depth: depth, filter: map[uintptr]bool{}}
 		sb.fmt(reflect.ValueOf(i[0]), 0)
-		sb.WriteByte('\n')
-		return sb.String()
+		sb.buf.WriteByte('\n')
+		return sb.buf.String()
 	default:
 		return toString(depth, b, i)
 	}
 }
 
-type sbuf struct {
-	bytes.Buffer
-	style stlye
-	depth int
-	buf   map[uintptr]bool
+type format struct {
+	buf    *bytes.Buffer    // 缓冲
+	style  stlye            // 格式化风格
+	depth  int              // 最大递归深度
+	filter map[uintptr]bool // 过滤重复地址
 }
 
-func (s *sbuf) fmt(va reflect.Value, depth int) {
+func (s *format) fmt(va reflect.Value, depth int) {
 	if !va.IsValid() {
-		s.getNil()
+		s.nilBuf()
 		return
 	}
 	v := va
-	if depth >= DepthMax {
-		s.toDefault(v)
+	if depth >= s.depth {
+		s.defaultBuf(v)
 		return
 	}
 
@@ -62,22 +63,21 @@ func (s *sbuf) fmt(va reflect.Value, depth int) {
 	}
 
 	for v.Kind() == reflect.Ptr {
-		if s.buf[v.Pointer()] {
-			s.pointer2String(v)
+		if s.filter[v.Pointer()] {
+			s.xxBuf(v.Kind().String(), v.Pointer())
 			return
-		} else {
-			s.buf[v.Pointer()] = true
 		}
+		s.filter[v.Pointer()] = true
 
 		v = v.Elem()
 		if !v.IsValid() {
-			s.getNil()
+			s.nilBuf()
 			return
 		}
 		switch s.style {
-		case sjson:
+		case spjson:
 		default:
-			s.WriteByte('&')
+			s.buf.WriteByte('&')
 		}
 		if s.getString(va) {
 			return
@@ -85,266 +85,259 @@ func (s *sbuf) fmt(va reflect.Value, depth int) {
 	}
 	switch v.Kind() {
 	case reflect.Invalid:
-		s.WriteString(invalid)
+		s.nilBuf()
 	case reflect.Struct:
 		switch s.style {
-		case sjson:
-			s.map2String(reflect.ValueOf(struct2Map(v)), depth)
+		case spjson:
+			s.mapBuf(reflect.ValueOf(struct2Map(v)), depth)
 		default:
-			s.struct2String(v, depth)
+			s.structBuf(v, depth)
 		}
 	case reflect.Map:
-		s.map2String(v, depth)
+		s.mapBuf(v, depth)
 	case reflect.Array, reflect.Slice:
-		s.slice2String(v, depth)
+		s.sliceBuf(v, depth)
 	case reflect.String:
-		s.string2String(v)
+		s.stringBuf(v)
 	case reflect.Func:
-		s.func2String(v)
+		s.funcBuf(v)
 	case reflect.Uintptr, reflect.UnsafePointer:
-		s.x2string(v)
+		s.xxBuf(v.Kind().String(), v.Uint())
 	case reflect.Chan, reflect.Ptr:
-		s.pointer2String(v)
+		s.xxBuf(v.Kind().String(), v.Pointer())
 	case reflect.Interface:
 		v = v.Elem()
 		if v.IsValid() {
 			s.fmt(v, depth)
 		} else {
-			s.getNil()
+			s.nilBuf()
 		}
 	default:
-		s.toDefault(v)
+		s.defaultBuf(v)
 	}
 	return
 }
 
-func (s *sbuf) toDepth(i int) {
-	s.WriteByte('\n')
-	s.getSpace(i)
-}
-
-func (s *sbuf) getSpace(i int) {
+// 换行 写入缓冲
+func (s *format) depthBuf(i int) {
+	s.buf.WriteByte('\n')
 	for k := 0; k < i; k++ {
-		s.WriteByte(' ')
+		s.buf.WriteByte(' ')
 	}
+	return
 }
 
-func (s *sbuf) getNil() {
+// 空数据 写入缓冲
+func (s *format) nilBuf() {
 	switch s.style {
-	case sjson:
-		s.WriteString(null)
+	case spjson:
+		s.buf.WriteString(invalidJson)
 	default:
-		s.WriteString(invalid)
+		s.buf.WriteString(invalid)
 	}
+	return
 }
 
-func (s *sbuf) toDefault(v reflect.Value) {
+// 默认格式化 写入缓冲
+func (s *format) defaultBuf(v reflect.Value) {
 	switch s.style {
-	case sp:
-		s.getName(v)
-		s.WriteByte('(')
-		s.WriteString(fmt.Sprint(v.Interface()))
-		s.WriteByte(')')
-	case sjson:
+	case sp, sputs:
+		s.nameBuf(v)
+		s.buf.WriteByte('(')
+		s.buf.WriteString(fmt.Sprint(v.Interface()))
+		s.buf.WriteByte(')')
+	case spjson:
 		js, _ := json.Marshal(v.Interface())
-		s.WriteString(string(js))
+		s.buf.WriteString(string(js))
 	default:
-		s.WriteString(fmt.Sprint(v.Interface()))
+		s.buf.WriteString(fmt.Sprint(v.Interface()))
 	}
 	return
 }
 
-func (s *sbuf) string2String(v reflect.Value) {
+// string格式化 写入缓冲
+func (s *format) stringBuf(v reflect.Value) {
 	switch s.style {
 	case sp:
-		s.toDefault(v)
-	case sputs, sjson:
-		s.WriteByte('"')
-		s.WriteString(strings.Replace(v.String(), `"`, `'`, -1))
-		s.WriteByte('"')
+		s.defaultBuf(v)
+	case sputs, spjson:
+		s.buf.WriteByte('"')
+		s.buf.WriteString(strings.Replace(v.String(), `"`, `\"`, -1))
+		s.buf.WriteByte('"')
 	default:
-		s.WriteString(v.String())
+		s.buf.WriteString(v.String())
 	}
 	return
 }
 
-func (s *sbuf) func2String(v reflect.Value) {
+// func格式化 写入缓冲
+func (s *format) funcBuf(v reflect.Value) {
 	switch s.style {
-	case sjson:
-		s.WriteByte('"')
-		defer s.WriteByte('"')
+	case spjson:
+		s.buf.WriteByte('"')
+		defer s.buf.WriteByte('"')
 	default:
-		s.WriteByte('<')
-		defer s.WriteByte('>')
+		s.buf.WriteByte('<')
+		defer s.buf.WriteByte('>')
 	}
-	s.WriteString("func(")
+	s.buf.WriteString("func(")
 	t := v.Type()
 	if t.NumIn() != 0 {
 		for i := 0; ; {
-			s.WriteString(t.In(i).String())
+			s.buf.WriteString(t.In(i).String())
 			i++
 			if i == t.NumIn() {
 				break
 			}
-			s.WriteByte(',')
+			s.buf.WriteByte(',')
 		}
 	}
-	s.WriteByte(')')
-	s.WriteByte('(')
+	s.buf.WriteString(")(")
 	if t.NumOut() != 0 {
 		for i := 0; ; {
-			s.WriteString(t.Out(i).String())
+			s.buf.WriteString(t.Out(i).String())
 			i++
 			if i == t.NumOut() {
 				break
 			}
-			s.WriteByte(',')
+			s.buf.WriteByte(',')
 		}
 	}
-	s.WriteByte(')')
-	s.WriteString(fmt.Sprintf("(0x%020x)", v.Pointer()))
+	s.buf.WriteByte(')')
+	s.buf.WriteString(fmt.Sprintf("(0x%020x)", v.Pointer()))
 	return
 }
 
-func (s *sbuf) x2string(v reflect.Value) {
+// 16进制类型格式化 写入缓冲
+func (s *format) xxBuf(n string, i interface{}) {
 	switch s.style {
-	case sjson:
-		s.WriteByte('"')
-		defer s.WriteByte('"')
+	case spjson:
+		s.buf.WriteByte('"')
+		defer s.buf.WriteByte('"')
 
 	default:
-		s.WriteByte('<')
-		defer s.WriteByte('>')
+		s.buf.WriteByte('<')
+		defer s.buf.WriteByte('>')
 	}
-	s.WriteString(v.Kind().String())
-	s.WriteString(fmt.Sprintf("(0x%020x)", v.Uint()))
+	s.buf.WriteString(n)
+	s.buf.WriteString(fmt.Sprintf("(0x%020x)", i))
 	return
 }
 
-func (s *sbuf) pointer2String(v reflect.Value) {
-	switch s.style {
-	case sjson:
-		s.WriteByte('"')
-		defer s.WriteByte('"')
-
-	default:
-		s.WriteByte('<')
-		defer s.WriteByte('>')
-	}
-	s.WriteString(v.Kind().String())
-	s.WriteString(fmt.Sprintf("(0x%020x)", v.Pointer()))
-	return
-}
-
-func (s *sbuf) struct2String(v reflect.Value, depth int) {
-	s.getName(v)
-	s.WriteByte('{')
+// struct格式化 写入缓冲
+// json风格 不走这里
+func (s *format) structBuf(v reflect.Value, depth int) {
+	s.nameBuf(v)
+	s.buf.WriteByte('{')
 	t := v.Type()
 
 	for i := 0; i != t.NumField(); i++ {
 		f := t.Field(i)
-		n := f.Name[0]
-		s.toDepth(depth + 1)
-		s.WriteString(f.Name)
-		s.WriteByte(':')
-		s.WriteByte(' ')
+		s.depthBuf(depth + 1)
+		s.buf.WriteString(f.Name)
+		s.buf.WriteString(": ")
 		v0 := v.Field(i)
-		if n < 'A' || n > 'Z' {
-			s.WriteString(private)
+		if isPrivateName(f.Name) {
+			s.buf.WriteString(private)
 		} else {
 			s.fmt(v0, depth+1)
 		}
 	}
-	s.toDepth(depth)
-	s.WriteByte('}')
+	s.depthBuf(depth)
+	s.buf.WriteByte('}')
 	return
 }
 
-func (s *sbuf) map2String(v reflect.Value, depth int) {
+// map格式化 写入缓冲
+func (s *format) mapBuf(v reflect.Value, depth int) {
 	mk := v.MapKeys()
 	valueSlice(mk).Sort()
-
-	s.getName(v)
-	s.WriteByte('{')
+	s.nameBuf(v)
+	s.buf.WriteByte('{')
 	for i := 0; i != len(mk); i++ {
 		k := mk[i]
 		switch s.style {
-		case sjson:
+		case spjson:
 			if i != 0 {
-				s.toDepth(depth)
-				s.WriteByte(',')
+				s.depthBuf(depth)
+				s.buf.WriteByte(',')
 			} else {
-				s.toDepth(depth + 1)
+				s.depthBuf(depth + 1)
 			}
 		default:
-			s.toDepth(depth + 1)
+			s.depthBuf(depth + 1)
 		}
-		s.fmt(k, DepthMax-1)
-		s.WriteByte(':')
-		s.WriteByte(' ')
+		s.fmt(k, s.depth-1)
+		s.buf.WriteString(": ")
 		s.fmt(v.MapIndex(k), depth+1)
 	}
-	s.toDepth(depth)
-	s.WriteByte('}')
+	s.depthBuf(depth)
+	s.buf.WriteByte('}')
 	return
 }
 
-func (s *sbuf) slice2String(v reflect.Value, depth int) {
-	s.getName(v)
-	s.WriteByte('[')
+// slice格式化 写入缓冲
+func (s *format) sliceBuf(v reflect.Value, depth int) {
+	s.nameBuf(v)
+	s.buf.WriteByte('[')
 	for i := 0; i != v.Len(); i++ {
 		switch s.style {
-		case sjson:
+		case spjson:
 			if i != 0 {
-				s.toDepth(depth)
-				s.WriteByte(',')
+				s.depthBuf(depth)
+				s.buf.WriteByte(',')
 			} else {
-				s.toDepth(depth + 1)
+				s.depthBuf(depth + 1)
 			}
 		default:
-			s.toDepth(depth + 1)
+			s.depthBuf(depth + 1)
 		}
 		s.fmt(v.Index(i), depth+1)
 	}
-	s.toDepth(depth)
-	s.WriteByte(']')
+	s.depthBuf(depth)
+	s.buf.WriteByte(']')
 	return
 }
 
-func (s *sbuf) getName(v reflect.Value) {
+// 获得类型名 写入缓冲
+func (s *format) nameBuf(v reflect.Value) {
 	switch s.style {
 	case sp:
 		t := v.Type()
 		if t.PkgPath() != "" {
-			s.WriteString(t.PkgPath())
-			s.WriteByte('.')
+			s.buf.WriteString(t.PkgPath())
+			s.buf.WriteByte('.')
 		}
 
 		if t.Name() != "" {
-			s.WriteString(t.Name())
+			s.buf.WriteString(t.Name())
 		} else {
-			s.WriteString(t.Kind().String())
+			s.buf.WriteString(t.Kind().String())
 		}
 	}
 	return
 }
-func (s *sbuf) getString(v reflect.Value) bool {
+
+// 获得默认字符串 写入缓冲
+// 如果成功则true
+func (s *format) getString(v reflect.Value) bool {
 	if r := getString(v); r != "" {
 		switch s.style {
-		case sjson:
-			s.WriteByte('"')
-			s.WriteString(r)
-			s.WriteByte('"')
+		case spjson:
+			s.buf.WriteByte('"')
+			s.buf.WriteString(r)
+			s.buf.WriteByte('"')
 		default:
-			s.WriteByte('<')
-			s.WriteString(r)
-			s.WriteByte('>')
+			s.buf.WriteByte('<')
+			s.buf.WriteString(r)
+			s.buf.WriteByte('>')
 		}
 		return true
 	}
 	return false
 }
 
+// 获得默认字符串
 func getString(v reflect.Value) string {
 	i := v.Interface()
 
@@ -357,13 +350,18 @@ func getString(v reflect.Value) string {
 	return ""
 }
 
+// 判断是私有名
+func isPrivateName(n string) bool {
+	return len(n) == 0 || n[0] < 'A' || n[0] > 'Z'
+}
+
+// struct转map
 func struct2Map(v reflect.Value) map[string]interface{} {
 	t := v.Type()
 	data := map[string]interface{}{}
 	for i := 0; i < t.NumField(); i++ {
 		f := t.Field(i)
-		n := f.Name[0]
-		if n < 'A' || n > 'Z' {
+		if isPrivateName(f.Name) {
 			continue
 		}
 		data[f.Name] = v.Field(i).Interface()
