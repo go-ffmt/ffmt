@@ -5,11 +5,6 @@ import (
 	"strings"
 )
 
-type head struct {
-	node
-	max int
-}
-
 const colSym = ": "
 
 func spac(depth int) string {
@@ -24,18 +19,6 @@ func spac(depth int) string {
 
 func spacing(depth int) string {
 	return "\n" + spac(depth-1)
-}
-
-func (n *head) String() string {
-	buf := pool.Get()
-	defer pool.Put(buf)
-	buf.Reset()
-	n.strings(0, buf)
-	s := buf.String()
-	if len(s) >= 2 {
-		return s[2:]
-	}
-	return ""
 }
 
 // 这就是一个二叉树
@@ -180,6 +163,18 @@ func (n *node) put() {
 	return
 }
 
+func (n *node) String() string {
+	buf := pool.Get()
+	defer pool.Put(buf)
+	buf.Reset()
+	n.strings(0, buf)
+	s := buf.String()
+	if len(s) >= 2 {
+		return s[2:]
+	}
+	return ""
+}
+
 func (n *node) strings(d int, buf *bytes.Buffer) {
 	buf.WriteString(spacing(d))
 	n.value.WriteTo(buf)
@@ -223,11 +218,11 @@ func getDepth(a string) int {
 	return 0
 }
 
-func stringToNode(a string) (o *head) {
+func stringToNode(a string) *node {
 	ss := strings.Split(a, "\n")
 	depth := 0
-	o = &head{}
-	x := &o.node
+	o := &node{}
+	x := o
 	x.value = pool.Get()
 	st := []*node{}
 	for i := 0; i != len(ss); i++ {
@@ -254,9 +249,6 @@ func stringToNode(a string) (o *head) {
 		}
 		x.value.WriteString(b[d:])
 		x.colon = strings.Index(x.value.String(), colSym)
-		if max := d + x.value.Len(); max > o.max {
-			o.max = max
-		}
 	}
 	return o
 }
