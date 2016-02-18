@@ -234,13 +234,17 @@ func stringToNode(a string) *node {
 			st = append(st, x)
 			x = x.toChild()
 		} else if d < depth {
-			x = st[len(st)-1]
-			if x != nil {
-				st = st[:len(st)-1]
-				x.child.colonPos()
-				x.child.tablePos()
-				x.child.lrPos()
+			if len(st) == 0 {
 				x = x.toNext()
+			} else {
+				x = st[len(st)-1]
+				if x != nil {
+					st = st[:len(st)-1]
+					x.child.colonPos()
+					x.child.tablePos()
+					x.child.lrPos()
+					x = x.toNext()
+				}
 			}
 		}
 		depth = d
