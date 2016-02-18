@@ -20,9 +20,9 @@ func TestFmtMap(t *testing.T) {
 func TestFmtSlice(t *testing.T) {
 	bl := math.Pi / 10
 	mc := []interface{}{}
-	mc = append(mc, "\\", "i", "cos(i)")
+	mc = append(mc, "\\", "i", "sin(i)")
 	for i := float64(0); i <= 2*math.Pi; i += bl {
-		mc = append(mc, i/bl+1, i, math.Cos(i))
+		mc = append(mc, i/bl+1, i, math.Sin(i))
 	}
 	Print(mc)
 }

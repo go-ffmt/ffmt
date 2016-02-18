@@ -141,7 +141,7 @@ func (s *format) nilBuf() {
 // 默认格式化 写入缓冲
 func (s *format) defaultBuf(v reflect.Value) {
 	switch s.style {
-	case sp, sputs:
+	case sp:
 		s.nameBuf(v)
 		s.buf.WriteByte('(')
 		s.buf.WriteString(fmt.Sprint(v.Interface()))
@@ -176,7 +176,7 @@ func (s *format) funcBuf(v reflect.Value) {
 	case spjson:
 		s.buf.WriteByte('"')
 		defer s.buf.WriteByte('"')
-	default:
+	case sp:
 		s.buf.WriteByte('<')
 		defer s.buf.WriteByte('>')
 	}
@@ -214,8 +214,7 @@ func (s *format) xxBuf(n string, i interface{}) {
 	case spjson:
 		s.buf.WriteByte('"')
 		defer s.buf.WriteByte('"')
-
-	default:
+	case sp:
 		s.buf.WriteByte('<')
 		defer s.buf.WriteByte('>')
 	}
@@ -325,13 +324,12 @@ func (s *format) getString(v reflect.Value) bool {
 		switch s.style {
 		case spjson:
 			s.buf.WriteByte('"')
-			s.buf.WriteString(r)
-			s.buf.WriteByte('"')
-		default:
+			defer s.buf.WriteByte('"')
+		case sp:
 			s.buf.WriteByte('<')
-			s.buf.WriteString(r)
-			s.buf.WriteByte('>')
+			defer s.buf.WriteByte('>')
 		}
+		s.buf.WriteString(r)
 		return true
 	}
 	return false
