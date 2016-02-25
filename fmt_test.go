@@ -54,7 +54,7 @@ var Test1 = struct {
 	"你好",
 	"hello all hello all hello all hello all hello all hello all ",
 	"Display ",
-	[]string{"hello", "world", "bey", "bey"},
+	[]string{"hello", "world", "bey", "bey", "宽字符制表显示正常仅限等宽字体", "效率又降低了", "哈哈哈哈哈啊", "咳咳", "然而并没有什么卵用"},
 	[]struct {
 		Msg string
 		AA  [8]int
@@ -67,6 +67,8 @@ var Test1 = struct {
 	map[string]string{
 		"aa": "hi world",
 		"bb": "bye world",
+		"一二三四五12345adcde": "1122334455",
+		"鱼鱼鱼":             "yuyuyu",
 	},
 	true,
 	time.Now(),

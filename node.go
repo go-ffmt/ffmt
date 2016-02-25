@@ -7,20 +7,6 @@ import (
 
 const colSym = ": "
 
-func spac(depth int) string {
-	b := []byte{}
-	if depth > 0 {
-		for i := 0; i != depth; i++ {
-			b = append(b, ' ')
-		}
-	}
-	return string(b)
-}
-
-func spacing(depth int) string {
-	return "\n" + spac(depth-1)
-}
-
 // 这就是一个二叉树
 type node struct {
 	child *node         // 子节点 左
@@ -53,7 +39,7 @@ func (n *node) tablePos() {
 		if x.colon > 0 || x.child != nil {
 			return
 		}
-		ll := x.value.Len()
+		ll := biglen(x.value.String())
 		ms = append(ms, ll)
 		sum += ll
 		if ll > max {
@@ -115,7 +101,7 @@ func (n *node) spac(i int) {
 
 // 合并下一个节点到当前节点
 func (n *node) mergeNext(max int) {
-	n.spac(max - n.value.Len())
+	n.spac(max - biglen(n.value.String()))
 	n.next.value.WriteTo(n.value)
 	pool.Put(n.next.value)
 	n.next = n.next.next
@@ -126,19 +112,27 @@ func (n *node) colonPos() {
 	b := n
 	for b != nil {
 		m := 0
-		for next := b; next != nil; next = next.next {
-			if next.colon > m {
-				m = next.colon
+		for x := b; x != nil; x = x.next {
+			if x.colon <= 0 {
+				continue
 			}
-			if next.child != nil {
+			bl := biglen(x.value.String()[:x.colon])
+			if bl > m {
+				m = bl
+			}
+			if x.child != nil {
 				break
 			}
 		}
 		for x := b; x != nil; x = x.next {
-			if x.colon > 0 && m-x.colon > 0 {
-				t := strings.Replace(x.value.String(), colSym, colSym+spac(m-x.colon), 1)
-				x.value.Reset()
-				x.value.WriteString(t)
+
+			if x.colon > 0 {
+				bl := biglen(x.value.String()[:x.colon])
+				if m-bl > 0 {
+					t := strings.Replace(x.value.String(), colSym, colSym+spac(m-bl), 1)
+					x.value.Reset()
+					x.value.WriteString(t)
+				}
 			}
 			b = x.next
 			if x.child != nil {
