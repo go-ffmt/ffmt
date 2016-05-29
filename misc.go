@@ -26,7 +26,7 @@ func spac(depth int) string {
 	b := []byte{}
 	if depth > 0 {
 		for i := 0; i != depth; i++ {
-			b = append(b, ' ')
+			b = append(b, Space)
 		}
 	}
 	return string(b)

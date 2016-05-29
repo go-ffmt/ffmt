@@ -122,7 +122,7 @@ func (s *format) fmt(va reflect.Value, depth int) {
 func (s *format) depthBuf(i int) {
 	s.buf.WriteByte('\n')
 	for k := 0; k < i; k++ {
-		s.buf.WriteByte(' ')
+		s.buf.WriteByte(Space)
 	}
 	return
 }
@@ -234,7 +234,7 @@ func (s *format) structBuf(v reflect.Value, depth int) {
 		f := t.Field(i)
 		s.depthBuf(depth + 1)
 		s.buf.WriteString(f.Name)
-		s.buf.WriteString(": ")
+		s.buf.WriteString(colSym)
 		v0 := v.Field(i)
 		if isPrivateName(f.Name) {
 			s.buf.WriteString(private)
@@ -267,7 +267,7 @@ func (s *format) mapBuf(v reflect.Value, depth int) {
 			s.depthBuf(depth + 1)
 		}
 		s.fmt(k, s.depth-1)
-		s.buf.WriteString(": ")
+		s.buf.WriteString(colSym)
 		s.fmt(v.MapIndex(k), depth+1)
 	}
 	s.depthBuf(depth)

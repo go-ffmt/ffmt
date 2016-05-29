@@ -5,8 +5,6 @@ import (
 	"strings"
 )
 
-const colSym = ": "
-
 // 这就是一个二叉树
 type node struct {
 	child *node         // 子节点 左
@@ -94,7 +92,7 @@ func (n *node) mergeNextSize(s int, ms []int) {
 // 空格 写入缓冲
 func (n *node) spac(i int) {
 	for k := 0; k < i; k++ {
-		n.value.WriteByte(' ')
+		n.value.WriteByte(Space)
 	}
 	return
 }
@@ -202,7 +200,7 @@ func (n *node) toNext() (e *node) {
 func getDepth(a string) int {
 	for i := 0; i != len(a); i++ {
 		switch a[i] {
-		case ' ':
+		case Space:
 		case ',':
 			return i + 1
 		default:

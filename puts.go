@@ -5,7 +5,10 @@ import (
 	"io"
 )
 
+const colSym = ": "
+
 var DepthMax = 5
+var Space byte = ' '
 
 // P 系列 更改风格 显示完整的类型
 func Fp(w io.Writer, a ...interface{}) (int, error) {
