@@ -1,63 +1,67 @@
 package ffmt
 
-import (
-	"fmt"
-	"io"
-)
+import "io"
 
 const colSym = ": "
 
-var DepthMax = 5
 var Space byte = ' '
 
 // P 系列 更改风格 显示完整的类型
+var defP = NewOptional(5, StlyeP, CanDefaultString|CanFilterDuplicate|CanRowSpan)
+
 func Fp(w io.Writer, a ...interface{}) (int, error) {
-	return fmt.Fprint(w, Sp(a...))
+	return defP.Fprint(w, a...)
 }
 
 func P(a ...interface{}) (int, error) {
-	return fmt.Print(Sp(a...))
+	return defP.Print(a...)
 }
 
 func Sp(a ...interface{}) string {
-	return nodes(toString(DepthMax, sp, a...))
+	return defP.Sprint(a...)
 }
 
 // Puts 系列 更改风格
+var defPuts = NewOptional(5, StlyePuts, CanDefaultString|CanFilterDuplicate|CanRowSpan)
+
 func Fputs(w io.Writer, a ...interface{}) (int, error) {
-	return fmt.Fprint(w, Sputs(a...))
+	return defPuts.Fprint(w, a...)
 }
 
 func Puts(a ...interface{}) (int, error) {
-	return fmt.Print(Sputs(a...))
+	return defPuts.Print(a...)
 }
 
 func Sputs(a ...interface{}) string {
-	return nodes(toString(DepthMax, sputs, a...))
+	return defPuts.Sprint(a...)
 }
 
 // Print 系列 默认风格
+var defPrint = NewOptional(5, StlyePrint, CanDefaultString|CanFilterDuplicate|CanRowSpan)
+
 func Fprint(w io.Writer, a ...interface{}) (int, error) {
-	return fmt.Fprint(w, Sprint(a...))
+	return defPrint.Fprint(w, a...)
 }
 
 func Print(a ...interface{}) (int, error) {
-	return fmt.Print(Sprint(a...))
+	return defPrint.Print(a...)
 }
 
 func Sprint(a ...interface{}) string {
-	return nodes(toString(DepthMax, sprint, a...))
+	return defPrint.Sprint(a...)
 }
 
 // Pjson 系列
+var defPjson = NewOptional(20, StlyePjson, CanDefaultString|CanRowSpan)
+
 func Fpjson(w io.Writer, a ...interface{}) (int, error) {
-	return fmt.Fprint(w, Spjson(a...))
+	return defPjson.Fprint(w, a...)
 }
 
 func Pjson(a ...interface{}) (int, error) {
-	return fmt.Print(Spjson(a...))
+	return defPjson.Print(a...)
 }
 
 func Spjson(a ...interface{}) string {
-	return nodes(toString(DepthMax, spjson, a...))
+	return defPjson.Sprint(a...)
 }

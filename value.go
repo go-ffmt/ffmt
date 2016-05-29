@@ -14,36 +14,9 @@ const (
 	private     = "<private>"
 )
 
-type stlye int
-
-const (
-	sp     stlye = iota + 1 // 显示完整的类型名和数据
-	sputs                   // 显示数据
-	sprint                  // 显示数据 字符串不加引号
-	spjson                  // 以json风格显示数据 不显示结构体私有项
-)
-
-func toString(depth int, b stlye, i ...interface{}) string {
-	switch len(i) {
-	case 0:
-		return ""
-	case 1:
-		buf := pool.Get()
-		buf.Reset()
-		defer pool.Put(buf)
-		sb := &format{buf: buf, style: b, depth: depth, filter: map[uintptr]bool{}}
-		sb.fmt(reflect.ValueOf(i[0]), 0)
-		sb.buf.WriteByte('\n')
-		return sb.buf.String()
-	default:
-		return toString(depth, b, i)
-	}
-}
-
 type format struct {
+	optional
 	buf    *bytes.Buffer    // 缓冲
-	style  stlye            // 格式化风格
-	depth  int              // 最大递归深度
 	filter map[uintptr]bool // 过滤重复地址
 }
 
@@ -63,11 +36,13 @@ func (s *format) fmt(va reflect.Value, depth int) {
 	}
 
 	for v.Kind() == reflect.Ptr {
-		if s.filter[v.Pointer()] {
-			s.xxBuf(v.Kind().String(), v.Pointer())
-			return
+		if s.opt.IsCanDefaultString() {
+			if s.filter[v.Pointer()] {
+				s.xxBuf(v, v.Pointer())
+				return
+			}
+			s.filter[v.Pointer()] = true
 		}
-		s.filter[v.Pointer()] = true
 
 		v = v.Elem()
 		if !v.IsValid() {
@@ -75,7 +50,7 @@ func (s *format) fmt(va reflect.Value, depth int) {
 			return
 		}
 		switch s.style {
-		case spjson:
+		case StlyePjson:
 		default:
 			s.buf.WriteByte('&')
 		}
@@ -88,7 +63,7 @@ func (s *format) fmt(va reflect.Value, depth int) {
 		s.nilBuf()
 	case reflect.Struct:
 		switch s.style {
-		case spjson:
+		case StlyePjson:
 			s.mapBuf(reflect.ValueOf(struct2Map(v)), depth)
 		default:
 			s.structBuf(v, depth)
@@ -102,9 +77,9 @@ func (s *format) fmt(va reflect.Value, depth int) {
 	case reflect.Func:
 		s.funcBuf(v)
 	case reflect.Uintptr, reflect.UnsafePointer:
-		s.xxBuf(v.Kind().String(), v.Uint())
+		s.xxBuf(v, v.Uint())
 	case reflect.Chan, reflect.Ptr:
-		s.xxBuf(v.Kind().String(), v.Pointer())
+		s.xxBuf(v, v.Pointer())
 	case reflect.Interface:
 		v = v.Elem()
 		if v.IsValid() {
@@ -130,7 +105,7 @@ func (s *format) depthBuf(i int) {
 // 空数据 写入缓冲
 func (s *format) nilBuf() {
 	switch s.style {
-	case spjson:
+	case StlyePjson:
 		s.buf.WriteString(invalidJson)
 	default:
 		s.buf.WriteString(invalid)
@@ -141,12 +116,12 @@ func (s *format) nilBuf() {
 // 默认格式化 写入缓冲
 func (s *format) defaultBuf(v reflect.Value) {
 	switch s.style {
-	case sp:
+	case StlyeP:
 		s.nameBuf(v)
 		s.buf.WriteByte('(')
 		s.buf.WriteString(fmt.Sprint(v.Interface()))
 		s.buf.WriteByte(')')
-	case spjson:
+	case StlyePjson:
 		js, _ := json.Marshal(v.Interface())
 		s.buf.WriteString(string(js))
 	default:
@@ -158,9 +133,9 @@ func (s *format) defaultBuf(v reflect.Value) {
 // string格式化 写入缓冲
 func (s *format) stringBuf(v reflect.Value) {
 	switch s.style {
-	case sp:
+	case StlyeP:
 		s.defaultBuf(v)
-	case sputs, spjson:
+	case StlyePuts, StlyePjson:
 		s.buf.WriteByte('"')
 		s.buf.WriteString(strings.Replace(v.String(), `"`, `\"`, -1))
 		s.buf.WriteByte('"')
@@ -173,10 +148,10 @@ func (s *format) stringBuf(v reflect.Value) {
 // func格式化 写入缓冲
 func (s *format) funcBuf(v reflect.Value) {
 	switch s.style {
-	case spjson:
+	case StlyePjson:
 		s.buf.WriteByte('"')
 		defer s.buf.WriteByte('"')
-	case sp:
+	case StlyeP:
 		s.buf.WriteByte('<')
 		defer s.buf.WriteByte('>')
 	}
@@ -209,16 +184,16 @@ func (s *format) funcBuf(v reflect.Value) {
 }
 
 // 16进制类型格式化 写入缓冲
-func (s *format) xxBuf(n string, i interface{}) {
+func (s *format) xxBuf(v reflect.Value, i interface{}) {
 	switch s.style {
-	case spjson:
+	case StlyePjson:
 		s.buf.WriteByte('"')
 		defer s.buf.WriteByte('"')
-	case sp:
+	case StlyeP:
 		s.buf.WriteByte('<')
 		defer s.buf.WriteByte('>')
 	}
-	s.buf.WriteString(n)
+	s.nameBuf(v)
 	s.buf.WriteString(fmt.Sprintf("(0x%020x)", i))
 	return
 }
@@ -256,7 +231,7 @@ func (s *format) mapBuf(v reflect.Value, depth int) {
 	for i := 0; i != len(mk); i++ {
 		k := mk[i]
 		switch s.style {
-		case spjson:
+		case StlyePjson:
 			if i != 0 {
 				s.depthBuf(depth)
 				s.buf.WriteByte(',')
@@ -281,7 +256,7 @@ func (s *format) sliceBuf(v reflect.Value, depth int) {
 	s.buf.WriteByte('[')
 	for i := 0; i != v.Len(); i++ {
 		switch s.style {
-		case spjson:
+		case StlyePjson:
 			if i != 0 {
 				s.depthBuf(depth)
 				s.buf.WriteByte(',')
@@ -301,7 +276,7 @@ func (s *format) sliceBuf(v reflect.Value, depth int) {
 // 获得类型名 写入缓冲
 func (s *format) nameBuf(v reflect.Value) {
 	switch s.style {
-	case sp:
+	case StlyeP:
 		t := v.Type()
 		if t.PkgPath() != "" {
 			s.buf.WriteString(t.PkgPath())
@@ -320,12 +295,15 @@ func (s *format) nameBuf(v reflect.Value) {
 // 获得默认字符串 写入缓冲
 // 如果成功则true
 func (s *format) getString(v reflect.Value) bool {
+	if !s.opt.IsCanDefaultString() {
+		return false
+	}
 	if r := getString(v); r != "" {
 		switch s.style {
-		case spjson:
+		case StlyePjson:
 			s.buf.WriteByte('"')
 			defer s.buf.WriteByte('"')
-		case sp:
+		case StlyeP:
 			s.buf.WriteByte('<')
 			defer s.buf.WriteByte('>')
 		}
