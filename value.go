@@ -204,13 +204,12 @@ func (s *format) structBuf(v reflect.Value, depth int) {
 	s.nameBuf(v)
 	s.buf.WriteByte('{')
 	t := v.Type()
-
 	for i := 0; i != t.NumField(); i++ {
 		f := t.Field(i)
+		v0 := v.Field(i)
 		s.depthBuf(depth + 1)
 		s.buf.WriteString(f.Name)
 		s.buf.WriteString(colSym)
-		v0 := v.Field(i)
 		if isPrivateName(f.Name) {
 			s.buf.WriteString(private)
 		} else {

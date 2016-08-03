@@ -31,7 +31,16 @@ func TestFmtElse(t *testing.T) {
 	Print(Test1)
 }
 
+func TestMark(t *testing.T) {
+	MarkStackFull()
+}
+
+type bbb struct {
+	A int
+}
+
 var Test1 = struct {
+	bbb
 	Msg  string
 	Msg2 string
 	Msg3 string
@@ -49,7 +58,7 @@ var Test1 = struct {
 	TTT    interface{}
 	Chan   interface{}
 }{
-
+	bbb{},
 	"Display a friendly fmt for golang",
 	"你好",
 	"hello all hello all hello all hello all hello all hello all ",
