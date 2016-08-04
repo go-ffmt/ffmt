@@ -21,15 +21,13 @@ func MarkStackFull() {
 
 // 标记当前行栈
 func MarkStack(skip int, a ...interface{}) {
-	fmt.Println(makeStack(skip + 1))
-	if len(a) != 0 {
-		fmt.Println(a...)
-	}
+	fmt.Print(makeStack(skip + 1))
+	fmt.Println(a...)
 }
 
 // 标记当前行
 func Mark(a ...interface{}) {
-	MarkStack(1)
+	MarkStack(1, a...)
 }
 
 var curDir = getCurrentDirectory()
