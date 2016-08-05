@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"go/ast"
 	"reflect"
 	"strings"
 )
@@ -327,7 +328,8 @@ func getString(v reflect.Value) string {
 
 // 判断是私有名
 func isPrivateName(n string) bool {
-	return len(n) == 0 || n[0] < 'A' || n[0] > 'Z'
+	return !ast.IsExported(n)
+	//return len(n) == 0 || n[0] < 'A' || n[0] > 'Z'
 }
 
 // struct转map
