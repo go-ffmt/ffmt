@@ -10,7 +10,7 @@ var pool = bpool.NewBufferPool(128)
 
 var BigWord = unicode.Scripts["Han"]
 
-func biglen(str string) int {
+func Biglen(str string) int {
 	i := 0
 	for _, v := range str {
 		if unicode.Is(BigWord, v) {

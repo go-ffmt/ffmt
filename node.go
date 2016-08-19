@@ -37,7 +37,7 @@ func (n *node) tablePos() {
 		if x.colon > 0 || x.child != nil {
 			return
 		}
-		ll := biglen(x.value.String())
+		ll := Biglen(x.value.String())
 		ms = append(ms, ll)
 		sum += ll
 		if ll > max {
@@ -99,7 +99,7 @@ func (n *node) spac(i int) {
 
 // 合并下一个节点到当前节点
 func (n *node) mergeNext(max int) {
-	n.spac(max - biglen(n.value.String()))
+	n.spac(max - Biglen(n.value.String()))
 	n.next.value.WriteTo(n.value)
 	pool.Put(n.next.value)
 	n.next = n.next.next
@@ -114,7 +114,7 @@ func (n *node) colonPos() {
 			if x.colon <= 0 {
 				continue
 			}
-			bl := biglen(x.value.String()[:x.colon])
+			bl := Biglen(x.value.String()[:x.colon])
 			if bl > m {
 				m = bl
 			}
@@ -125,7 +125,7 @@ func (n *node) colonPos() {
 		for x := b; x != nil; x = x.next {
 
 			if x.colon > 0 {
-				bl := biglen(x.value.String()[:x.colon])
+				bl := Biglen(x.value.String()[:x.colon])
 				if m-bl > 0 {
 					t := strings.Replace(x.value.String(), colSym, colSym+spac(m-bl), 1)
 					x.value.Reset()

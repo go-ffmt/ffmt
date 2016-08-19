@@ -35,6 +35,19 @@ func TestMark(t *testing.T) {
 	MarkStackFull()
 }
 
+func TestTable(t *testing.T) {
+	Print(FmtTable([][]string{
+		{"hehe", "aaaa"},
+		{"号", "ss", "dd"},
+	}))
+}
+
+func TestFmt(t *testing.T) {
+	t.Log(Format("hello {name}", map[string]interface{}{
+		"name": time.Now(),
+	}))
+}
+
 type bbb struct {
 	A int
 }
