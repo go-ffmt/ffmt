@@ -21,8 +21,7 @@ func MarkStackFull() {
 
 // 标记当前行栈
 func MarkStack(skip int, a ...interface{}) {
-	fmt.Print(makeStack(skip + 1))
-	fmt.Println(a...)
+	fmt.Println(append([]interface{}{makeStack(skip + 1)}, a...)...)
 }
 
 // 标记当前行
