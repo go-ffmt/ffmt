@@ -11,7 +11,7 @@ import (
 // 打印从当前行开始的栈
 func MarkStackFull() {
 	for i := 1; ; i++ {
-		s := makeStackFunc(i)
+		s := FMakeStackFunc(i)
 		if s == "" {
 			break
 		}
@@ -21,7 +21,7 @@ func MarkStackFull() {
 
 // 标记当前行栈
 func MarkStack(skip int, a ...interface{}) {
-	fmt.Println(append([]interface{}{makeStack(skip + 1)}, a...)...)
+	fmt.Println(append([]interface{}{FMakeStack(skip + 1)}, a...)...)
 }
 
 // 标记当前行
@@ -55,7 +55,7 @@ func getRelativeDirectory(basepath, targpath string) string {
 	return targpath
 }
 
-func makeStack(skip int) string {
+func FMakeStack(skip int) string {
 	_, fileName, line, ok := runtime.Caller(skip + 1)
 	if !ok {
 		return ""
@@ -64,7 +64,7 @@ func makeStack(skip int) string {
 	return fmt.Sprintf("%s:%d ", fileName, line)
 }
 
-func makeStackFunc(skip int) string {
+func FMakeStackFunc(skip int) string {
 	pc, fileName, line, ok := runtime.Caller(skip + 1)
 	if !ok {
 		return ""
