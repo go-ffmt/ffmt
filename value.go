@@ -123,8 +123,15 @@ func (s *format) defaultBuf(v reflect.Value) {
 		s.buf.WriteString(fmt.Sprint(v.Interface()))
 		s.buf.WriteByte(')')
 	case StlyePjson:
-		js, _ := json.Marshal(v.Interface())
-		s.buf.WriteString(string(js))
+		m, ok := v.Interface().(json.Marshaler)
+		if ok {
+			js, _ := m.MarshalJSON()
+			s.buf.WriteString(string(js))
+		} else {
+			s.buf.WriteByte('"')
+			s.buf.WriteString(fmt.Sprint(v.Interface()))
+			s.buf.WriteByte('"')
+		}
 	default:
 		s.buf.WriteString(fmt.Sprint(v.Interface()))
 	}
