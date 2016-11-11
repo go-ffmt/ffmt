@@ -305,19 +305,31 @@ func (s *format) getString(v reflect.Value) bool {
 	if !s.opt.IsCanDefaultString() {
 		return false
 	}
-	if r := getString(v); r != "" {
-		switch s.style {
-		case StlyePjson:
-			s.buf.WriteByte('"')
-			defer s.buf.WriteByte('"')
-		case StlyeP:
-			s.buf.WriteByte('<')
-			defer s.buf.WriteByte('>')
+
+	switch s.style {
+	case StlyePjson:
+		vv, _ := json.Marshal(v.Interface())
+		r := getString(v)
+		if r == "" {
+			return false
+		}
+		s.buf.Write(vv)
+	case StlyeP:
+		r := getString(v)
+		if r == "" {
+			return false
+		}
+		s.buf.WriteByte('<')
+		s.buf.WriteString(r)
+		s.buf.WriteByte('>')
+	default:
+		r := getString(v)
+		if r == "" {
+			return false
 		}
 		s.buf.WriteString(r)
-		return true
 	}
-	return false
+	return true
 }
 
 // 获得默认字符串
