@@ -36,10 +36,14 @@ func TestMark(t *testing.T) {
 }
 
 func TestTable(t *testing.T) {
-	Print(FmtTable([][]string{
-		{"hehe", "aaaa"},
-		{"号", "ss", "dd"},
-	}))
+	b := []struct {
+		Na string
+		Ba string
+	}{
+		{"1111", "123123"},
+		{"1", "1231233231"},
+	}
+	Print(FmtTable(ToTable(b[0], b[0], b[1])))
 }
 
 func TestFmt(t *testing.T) {

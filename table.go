@@ -2,9 +2,29 @@ package ffmt
 
 import (
 	"bytes"
+	"fmt"
+	"reflect"
 )
 
 // 制表
+func ToTable(t interface{}, is ...interface{}) [][]string {
+	r := make([][]string, len(is)+1)
+	val := reflect.ValueOf(t)
+	typ := val.Type()
+	for i := 0; i != val.NumField(); i++ {
+		r[0] = append(r[0], typ.Field(i).Name)
+	}
+
+	for k, v := range is {
+		val := reflect.ValueOf(v)
+		for i := 0; i != val.NumField(); i++ {
+			r[k+1] = append(r[k+1], fmt.Sprint(val.FieldByName(r[0][i]).Interface()))
+		}
+	}
+	return r
+}
+
+// 制表格式化
 func FmtTable(b [][]string) (ss []string) {
 	maxs := []int{}
 	for _, v1 := range b {
