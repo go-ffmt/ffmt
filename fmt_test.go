@@ -42,8 +42,11 @@ func TestTable(t *testing.T) {
 	}{
 		{"1111", "123123"},
 		{"1", "1231233231"},
+		{"aaaa", "1231231"},
 	}
-	Print(FmtTable(ToTable(b[0], b[0], b[1])))
+	Print(FmtTable(ToTable(b[0], b[0], b[1], b[2], map[string]string{
+		"Na": "aaa3a",
+	})))
 }
 
 func TestFmt(t *testing.T) {

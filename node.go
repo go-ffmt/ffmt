@@ -54,6 +54,7 @@ func (n *node) tablePos() {
 	}
 }
 
+// 合并到下一节点
 func (n *node) merge(m int, ms []int) {
 	l := len(ms)
 	col := 0
@@ -69,6 +70,7 @@ func (n *node) merge(m int, ms []int) {
 	}
 }
 
+// 合并到下一节点指定长度
 func (n *node) mergeNextSize(s int, ms []int) {
 	lmax := make([]int, s)
 	for j := 0; j != s; j++ {
@@ -220,25 +222,27 @@ func stringToNode(a string) *node {
 	for i := 0; i != len(ss); i++ {
 		b := ss[i]
 		d := getDepth(b)
-		if d == depth {
+		switch {
+		case d == depth:
 			x = x.toNext()
-		} else if d > depth {
+		case d > depth:
 			st = append(st, x)
 			x = x.toChild()
-		} else if d < depth {
+		case d < depth:
 			if len(st) == 0 {
 				x = x.toNext()
 			} else {
 				x = st[len(st)-1]
 				if x != nil {
 					st = st[:len(st)-1]
-					x.child.colonPos()
-					x.child.tablePos()
-					x.child.lrPos()
+					x.child.colonPos() // 冒号后对其
+					x.child.tablePos() // 数组对其
+					x.child.lrPos()    // 空括号合并
 					x = x.toNext()
 				}
 			}
 		}
+
 		depth = d
 		if d > 0 {
 			d--

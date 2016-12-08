@@ -10,15 +10,41 @@ import (
 func ToTable(t interface{}, is ...interface{}) [][]string {
 	r := make([][]string, len(is)+1)
 	val := reflect.ValueOf(t)
+	val = reflect.Indirect(val)
 	typ := val.Type()
-	for i := 0; i != val.NumField(); i++ {
-		r[0] = append(r[0], typ.Field(i).Name)
+	switch val.Kind() {
+	case reflect.Struct:
+		for i := 0; i != val.NumField(); i++ {
+			r[0] = append(r[0], typ.Field(i).Name)
+		}
+	case reflect.Map:
+		ks := val.MapKeys()
+		for i := 0; i != len(ks); i++ {
+			r[0] = append(r[0], fmt.Sprint(ks[i].Interface()))
+		}
+	default:
+		return nil
 	}
 
 	for k, v := range is {
-		val := reflect.ValueOf(v)
-		for i := 0; i != val.NumField(); i++ {
-			r[k+1] = append(r[k+1], fmt.Sprint(val.FieldByName(r[0][i]).Interface()))
+		val0 := reflect.ValueOf(v)
+		val0 = reflect.Indirect(val0)
+		switch val0.Kind() {
+		case reflect.Struct:
+			for i := 0; i != len(r[0]); i++ {
+				r[k+1] = append(r[k+1], fmt.Sprint(val0.FieldByName(r[0][i]).Interface()))
+			}
+		case reflect.Map:
+			for i := 0; i != len(r[0]); i++ {
+				vv := val0.MapIndex(reflect.ValueOf(r[0][i]))
+				if vv.IsValid() {
+					r[k+1] = append(r[k+1], fmt.Sprint(vv))
+				} else {
+					r[k+1] = append(r[k+1], "")
+				}
+			}
+		default:
+			return nil
 		}
 	}
 	return r
