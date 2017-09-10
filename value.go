@@ -126,11 +126,10 @@ func (s *format) defaultBuf(v reflect.Value) {
 		m, ok := v.Interface().(json.Marshaler)
 		if ok {
 			js, _ := m.MarshalJSON()
-			s.buf.WriteString(string(js))
+			s.buf.Write(js)
 		} else {
-			s.buf.WriteByte('"')
-			s.buf.WriteString(fmt.Sprint(v.Interface()))
-			s.buf.WriteByte('"')
+			js, _ := json.Marshal(v.Interface())
+			s.buf.Write(js)
 		}
 	default:
 		s.buf.WriteString(fmt.Sprint(v.Interface()))
