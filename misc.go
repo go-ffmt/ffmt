@@ -1,10 +1,15 @@
 package ffmt
 
 import (
+	"fmt"
 	"unicode"
 
 	"github.com/oxtoacart/bpool"
 )
+
+// 默认
+var Printf = fmt.Printf
+var Println = fmt.Println
 
 var pool = bpool.NewBufferPool(128)
 

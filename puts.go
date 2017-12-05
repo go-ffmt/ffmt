@@ -1,6 +1,8 @@
 package ffmt
 
-import "io"
+import (
+	"io"
+)
 
 const colSym = ": "
 
