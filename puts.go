@@ -1,4 +1,4 @@
-package ffmt
+package ffmt // import "gopkg.in/ffmt.v1"
 
 import (
 	"io"
