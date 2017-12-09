@@ -1,13 +1,18 @@
-# 更加友好的显示数据类型的golang库
 # Display a friendly fmt for golang
 
+## Install
+
+``` shell
+go get -u -v gopkg.in/ffmt.v1
+```
 
 ## Test
-```
-go test -v github.com/wzshiming/ffmt
 
+``` shell
+go test -v gopkg.in/ffmt.v1
 ```
-```
+
+``` log
 === RUN   TestFmtMap
 {
  i:                  cos(i)
@@ -62,18 +67,25 @@ go test -v github.com/wzshiming/ffmt
 --- PASS: TestFmtSlice (0.00s)
 === RUN   TestFmtElse
 {
+ bbb:  <private>
  Msg:  Display a friendly fmt for golang
  Msg2: 你好
- Msg3: hello all hello all hello all hello all hello all hello all
+ Msg3: hello all hello all hello all hello all hello all hello all 
  msg:  <private>
  Msgs: [
-  hello        world                        bey
-  bey          宽字符制表显示正常仅限等宽字体 效率又降低了
-  哈哈哈哈哈啊 咳咳                         然而并没有什么卵用
+  hello
+  world
+  bey
+  bey
+  宽字符制表显示正常仅限等宽字体
+  效率又降低了
+  哈哈哈哈哈啊
+  咳咳
+  然而并没有什么卵用
  ]
  Stru: [
   {
-   Msg:
+   Msg: 
    AA:  [
     0 0 0 0
     0 0 0 0
@@ -109,20 +121,32 @@ go test -v github.com/wzshiming/ffmt
   鱼鱼鱼:               yuyuyu
  }
  B:    true
- T:    2016-02-25 11:30:08.8101377 +0800 CST
+ T:    2017-12-09 17:20:08.9637155 +0800 CST m=+0.001999300
  TTT:  <nil>
- Chan: chan(0x0000000000c08207e000)
+ Chan: (0x0000000000c0420a2000)
 }
 --- PASS: TestFmtElse (0.01s)
+=== RUN   TestMark
+fmt_test.go:35 ffmt%2ev1.TestMark 
+C:\Go\src\testing\testing.go:746 testing.tRunner 
+C:\Go\src\runtime\asm_amd64.s:2337 runtime.goexit 
+--- PASS: TestMark (0.00s)
+=== RUN   TestTable
+[
+ Na    Ba         
+ 1111  123123     
+ 1     1231233231 
+ aaaa  1231231    
+ aaa3a            
+]
+--- PASS: TestTable (0.00s)
+=== RUN   TestFmt
+--- PASS: TestFmt (0.00s)
+	fmt_test.go:53: hello 2017-12-09 17:20:08.9707159 +0800 CST m=+0.008999700
 PASS
-ok  	github.com/wzshiming/ffmt	0.031s
+ok  	gopkg.in/ffmt.v1	0.064s
 ```
 
+## MIT License
 
-
-
-## Install
-
-```
-go get -u github.com/wzshiming/ffmt
-```
+Copyright (c) 2017 wzshiming<[https://github.com/wzshiming](https://github.com/wzshiming)>
