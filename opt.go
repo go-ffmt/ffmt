@@ -1,6 +1,7 @@
 package ffmt
 
 import (
+	"bytes"
 	"fmt"
 	"io"
 	"reflect"
@@ -33,7 +34,7 @@ func (s *optional) Sprint(i ...interface{}) string {
 	case 0:
 		return ""
 	case 1:
-		buf := pool.Get()
+		buf := pool.Get().(*bytes.Buffer)
 		buf.Reset()
 		defer pool.Put(buf)
 		sb := &format{

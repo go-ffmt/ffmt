@@ -1,17 +1,22 @@
 package ffmt
 
 import (
+	"bytes"
 	"fmt"
 	"unicode"
 
-	"github.com/oxtoacart/bpool"
+	"sync"
 )
 
 // 默认
 var Printf = fmt.Printf
 var Println = fmt.Println
 
-var pool = bpool.NewBufferPool(128)
+var pool = sync.Pool{
+	New: func() interface{} {
+		return bytes.NewBuffer(nil)
+	},
+}
 
 var BigWord = unicode.Scripts["Han"]
 
