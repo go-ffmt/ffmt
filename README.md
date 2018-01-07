@@ -326,4 +326,6 @@ ok  	gopkg.in/ffmt.v1	0.060s
 
 ## MIT License
 
-Copyright (c) 2017 wzshiming<[https://github.com/wzshiming](https://github.com/wzshiming)>
+Copyright © 2017-2018 wzshiming<[https://github.com/wzshiming](https://github.com/wzshiming)>.
+
+MIT is open-sourced software licensed under the [MIT License](https://opensource.org/licenses/MIT).
