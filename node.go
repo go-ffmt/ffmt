@@ -159,8 +159,8 @@ func (n *node) put() {
 
 func (n *node) String() string {
 	buf := pool.Get().(*bytes.Buffer)
-	defer pool.Put(buf)
 	buf.Reset()
+	defer pool.Put(buf)
 	n.strings(0, buf)
 	s := buf.String()
 	if len(s) >= 2 {
@@ -183,8 +183,10 @@ func (n *node) strings(d int, buf *bytes.Buffer) {
 
 func (n *node) toChild() (e *node) {
 	if n.child == nil {
+		buf := pool.Get().(*bytes.Buffer)
+		buf.Reset()
 		n.child = &node{
-			value: pool.Get().(*bytes.Buffer),
+			value: buf,
 		}
 	}
 	return n.child
@@ -192,8 +194,10 @@ func (n *node) toChild() (e *node) {
 
 func (n *node) toNext() (e *node) {
 	if n.next == nil {
+		buf := pool.Get().(*bytes.Buffer)
+		buf.Reset()
 		n.next = &node{
-			value: pool.Get().(*bytes.Buffer),
+			value: buf,
 		}
 	}
 	return n.next
@@ -217,7 +221,9 @@ func stringToNode(a string) *node {
 	depth := 0
 	o := &node{}
 	x := o
-	x.value = pool.Get().(*bytes.Buffer)
+	buf := pool.Get().(*bytes.Buffer)
+	buf.Reset()
+	x.value = buf
 	st := []*node{}
 	for i := 0; i != len(ss); i++ {
 		b := ss[i]
