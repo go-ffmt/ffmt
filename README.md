@@ -6,146 +6,101 @@
 go get -u -v gopkg.in/ffmt.v1
 ```
 
-## Test
+## Usage
 
-``` shell
-go test -v gopkg.in/ffmt.v1
+``` golang
+// Friendly display
+ffmt.Puts(a ...interface{}) (int, error) // The go stlye friendly display of data
+ffmt.P(a ...interface{}) (int, error) // The go stlye friendly display of data and types
+ffmt.Pjson(a ...interface{}) (int, error) // The json stlye friendly display data
+
+// Mark line
+ffmt.Mark(a ...interface{}) // Output prefix current line position
+ffmt.MarkStack(skip int, a ...interface{}) // Output prefix stack line position
+ffmt.MarkStackFull() // Output stack full
+
+// Table 
+ffmt.ToTable(t interface{}, is ...interface{}) [][]string // Data to table data
+ffmt.FmtTable(b [][]string) (ss []string) // Format table data
 ```
 
-``` log
-=== RUN   TestFmtMap
-{
- i:                  cos(i)
- 0:                  1
- 0.3141592653589793: 0.9510565162951536
- 0.6283185307179586: 0.8090169943749473
- 0.9424777960769379: 0.5877852522924732
- 1.2566370614359172: 0.30901699437494745
- 1.5707963267948966: 6.123233995736757e-17
- 1.8849555921538759: -0.30901699437494734
- 2.199114857512855:  -0.587785252292473
- 2.5132741228718345: -0.8090169943749475
- 2.827433388230814:  -0.9510565162951535
- 3.141592653589793:  -1
- 3.4557519189487724: -0.9510565162951536
- 3.7699111843077517: -0.8090169943749475
- 4.084070449666731:  -0.5877852522924732
- 4.39822971502571:   -0.30901699437494756
- 4.71238898038469:   -1.8369701987210272e-16
- 5.026548245743669:  0.30901699437494723
- 5.340707511102648:  0.5877852522924729
- 5.654866776461628:  0.8090169943749473
- 5.969026041820607:  0.9510565162951535
- 6.283185307179586:  1
+## Examples
+
+[examples](./examples/main.go)
+
+``` golang
+m := map[string]interface{}{
+    "hello": "w",
+    "A": []int{
+        1, 2, 3, 4, 5, 6,
+    },
 }
---- PASS: TestFmtMap (0.00s)
-=== RUN   TestFmtSlice
-[
- \  i                  sin(i)
- 1  0                  0
- 2  0.3141592653589793 0.3090169943749474
- 3  0.6283185307179586 0.5877852522924731
- 4  0.9424777960769379 0.8090169943749475
- 5  1.2566370614359172 0.9510565162951535
- 6  1.5707963267948966 1
- 7  1.8849555921538759 0.9510565162951536
- 8  2.199114857512855  0.8090169943749475
- 9  2.5132741228718345 0.5877852522924732
- 10 2.827433388230814  0.3090169943749475
- 11 3.141592653589793  1.2246467991473515e-16
- 12 3.4557519189487724 -0.3090169943749473
- 13 3.7699111843077517 -0.587785252292473
- 14 4.084070449666731  -0.8090169943749473
- 15 4.39822971502571   -0.9510565162951535
- 16 4.71238898038469   -1
- 17 5.026548245743669  -0.9510565162951536
- 18 5.340707511102648  -0.8090169943749476
- 19 5.654866776461628  -0.5877852522924732
- 20 5.969026041820607  -0.3090169943749476
- 21 6.283185307179586  -2.449293598294703e-16
-]
---- PASS: TestFmtSlice (0.00s)
-=== RUN   TestFmtElse
+
+ffmt.Puts(m)
+/*
 {
- bbb:  <private>
- Msg:  Display a friendly fmt for golang
- Msg2: 你好
- Msg3: hello all hello all hello all hello all hello all hello all 
- msg:  <private>
- Msgs: [
-  hello
-  world
-  bey
-  bey
-  宽字符制表显示正常仅限等宽字体
-  效率又降低了
-  哈哈哈哈哈啊
-  咳咳
-  然而并没有什么卵用
+ "A": [
+  1 2 3
+  4 5 6
  ]
- Stru: [
-  {
-   Msg: 
-   AA:  [
-    0 0 0 0
-    0 0 0 0
-   ]
-  }
-  {
-   Msg: Test
-   AA:  [
-    2222 3333 0 0
-    0    0    0 0
-   ]
-  }
- ]
- Floats: [
-  2.1 3.3 0
-  0   0   0
- ]
- Ints: [
-  [
-   1 4     5
-   1 4     5
-   6 11999 0
-  ]
-  [
-   3
-  ]
-  [ ]
- ]
- Maps: {
-  aa:                   hi world
-  bb:                   bye world
-  一二三四五12345adcde: 1122334455
-  鱼鱼鱼:               yuyuyu
- }
- B:    true
- T:    2018-01-08 16:34:20.929423 +0800 CST m=+0.002039600
- TTT:  <nil>
- Chan: (0x0000000000c042082000)
+ "hello": "w"
 }
---- PASS: TestFmtElse (0.01s)
-=== RUN   TestMark
-fmt_test.go:35 ffmt%2ev1.TestMark 
-C:\Go\src\testing\testing.go:746 testing.tRunner 
-C:\Go\src\runtime\asm_amd64.s:2337 runtime.goexit 
---- PASS: TestMark (0.00s)
-=== RUN   TestTable
+*/
+
+ffmt.P(m)
+/*
+map{
+ string(A): slice[
+  int(1) int(2) int(3)
+  int(4) int(5) int(6)
+ ]
+ string(hello): string(w)
+}
+*/
+
+ffmt.Pjson(m)
+/*
+{
+ "A": [
+  1,2,3
+ ,4,5,6
+ ]
+,"hello": "w"
+}
+*/
+
+m0 := ffmt.ToTable(m, m)
+ffmt.Puts(m0)
+/*
 [
- Na    Ba         
- 1111  123123     
- 1     1231233231 
- aaaa  1231231    
- aaa3a            
+ [
+  "A"
+  "hello"
+ ]
+ [
+  "[1 2 3 4 5 6]"
+  "w"
+ ]
 ]
---- PASS: TestTable (0.00s)
-=== RUN   TestFmt
---- PASS: TestFmt (0.00s)
-	fmt_test.go:53: hello 2018-01-08 16:34:20.9363834 +0800 CST m=+0.009000000
-PASS
-ok  	gopkg.in/ffmt.v1	0.056s
+*/
+
+m1 := ffmt.FmtTable(m0)
+ffmt.Puts(m1)
+/*
+[
+ "A             hello "
+ "[1 2 3 4 5 6] w     "
+]
+*/
+
+ffmt.Mark("hello")
+/*
+main.go:25  hello
+*/
 ```
+
+
+
 
 ## MIT License
 
