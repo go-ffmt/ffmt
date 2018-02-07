@@ -13,18 +13,18 @@ go get -u -v gopkg.in/ffmt.v1
 
 ``` golang
 // 友好的显示
-ffmt.Puts(a ...interface{}) (int, error) // 以golang风格友好格式化显示数据
-ffmt.P(a ...interface{}) (int, error) // 以golang风格友好格式化显示数据并显示类型
-ffmt.Pjson(a ...interface{}) (int, error) // 以json风格友好格式化数据
+func Puts(a ...interface{}) (int, error) // 以golang风格友好格式化显示数据
+func P(a ...interface{}) (int, error) // 以golang风格友好格式化显示数据并显示类型
+func Pjson(a ...interface{}) (int, error) // 以json风格友好格式化数据
 
 // 标记行
-ffmt.Mark(a ...interface{}) // 输出当前行号
-ffmt.MarkStack(skip int, a ...interface{}) // 输出栈位置的行号
-ffmt.MarkStackFull() // 输出完整的栈
+func Mark(a ...interface{}) // 输出当前行号
+func MarkStack(skip int, a ...interface{}) // 输出栈位置的行号
+func MarkStackFull() // 输出完整的栈
 
 // 表格 
-ffmt.ToTable(t interface{}, is ...interface{}) [][]string // 数据转表格
-ffmt.FmtTable(b [][]string) (ss []string) // 表格格式化
+func ToTable(t interface{}, is ...interface{}) [][]string // 数据转表格
+func FmtTable(b [][]string) (ss []string) // 表格格式化
 ```
 
 ## 示例

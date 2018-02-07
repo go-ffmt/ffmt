@@ -13,18 +13,18 @@ go get -u -v gopkg.in/ffmt.v1
 
 ``` golang
 // Friendly display
-ffmt.Puts(a ...interface{}) (int, error) // The go stlye friendly display of data
-ffmt.P(a ...interface{}) (int, error) // The go stlye friendly display of data and types
-ffmt.Pjson(a ...interface{}) (int, error) // The json stlye friendly display data
+func Puts(a ...interface{}) (int, error) // The go stlye friendly display of data
+func P(a ...interface{}) (int, error) // The go stlye friendly display of data and types
+func Pjson(a ...interface{}) (int, error) // The json stlye friendly display data
 
 // Mark line
-ffmt.Mark(a ...interface{}) // Output prefix current line position
-ffmt.MarkStack(skip int, a ...interface{}) // Output prefix stack line position
-ffmt.MarkStackFull() // Output stack full
+func Mark(a ...interface{}) // Output prefix current line position
+func MarkStack(skip int, a ...interface{}) // Output prefix stack line position
+func MarkStackFull() // Output stack full
 
 // Table 
-ffmt.ToTable(t interface{}, is ...interface{}) [][]string // Data to table data
-ffmt.FmtTable(b [][]string) (ss []string) // Format table data
+func ToTable(t interface{}, is ...interface{}) [][]string // Data to table data
+func FmtTable(b [][]string) (ss []string) // Format table data
 ```
 
 ## Examples
