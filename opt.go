@@ -8,9 +8,9 @@ import (
 )
 
 type optional struct {
-	style stlye  // 格式化风格
-	depth int    // 最大递归深度
-	opt   option // 配置
+	style stlye  // Format style
+	depth int    // Maximum recursion depth
+	opt   option // Option
 }
 
 func NewOptional(depth int, b stlye, opt option) *optional {
@@ -57,9 +57,9 @@ func (s *optional) Sprint(i ...interface{}) string {
 type option uint32
 
 const (
-	CanDefaultString option = 1 << (31 - iota)
-	CanFilterDuplicate
-	CanRowSpan
+	CanDefaultString   option = 1 << (31 - iota) // can use .(fmt.Stringer)
+	CanFilterDuplicate                           // Filter duplicates
+	CanRowSpan                                   // Fold line
 )
 
 func (t option) IsCanDefaultString() bool {
@@ -77,8 +77,8 @@ func (t option) IsCanRowSpan() bool {
 type stlye int
 
 const (
-	StlyeP     stlye = iota + 1 // 显示完整的类型名和数据
-	StlyePuts                   // 显示数据
-	StlyePrint                  // 显示数据 字符串不加引号
-	StlyePjson                  // 以json风格显示数据 不显示结构体私有项
+	StlyeP     stlye = iota + 1 // Display type and data
+	StlyePuts                   // Display data
+	StlyePrint                  // Display data; string without quotes
+	StlyePjson                  // The json stlye display; Do not show private
 )

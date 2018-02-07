@@ -8,7 +8,7 @@ import (
 	"strings"
 )
 
-// 打印从当前行开始的栈
+// Output stack full
 func MarkStackFull() {
 	for i := 1; ; i++ {
 		s := FMakeStackFunc(i)
@@ -19,12 +19,12 @@ func MarkStackFull() {
 	}
 }
 
-// 标记当前行栈
+// Output prefix stack line pos
 func MarkStack(skip int, a ...interface{}) {
 	fmt.Println(append([]interface{}{FMakeStack(skip + 1)}, a...)...)
 }
 
-// 标记当前行
+// Output prefix current line position
 func Mark(a ...interface{}) {
 	MarkStack(1, a...)
 }

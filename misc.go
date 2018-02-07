@@ -8,7 +8,6 @@ import (
 	"sync"
 )
 
-// 默认
 var Printf = fmt.Printf
 var Println = fmt.Println
 

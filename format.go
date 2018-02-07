@@ -45,7 +45,7 @@ func formatMap(str string, par map[string]string) string {
 	})
 }
 
-// Format 格式化字符串
+// Format
 func Format(str string, data ...interface{}) string {
 	par := map[string]string{}
 	for _, d := range data {

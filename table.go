@@ -6,7 +6,7 @@ import (
 	"reflect"
 )
 
-// 制表
+// Data to table data
 func ToTable(t interface{}, is ...interface{}) [][]string {
 	r := make([][]string, len(is)+1)
 	val := reflect.ValueOf(t)
@@ -50,7 +50,7 @@ func ToTable(t interface{}, is ...interface{}) [][]string {
 	return r
 }
 
-// 制表格式化
+// Format table data
 func FmtTable(b [][]string) (ss []string) {
 	maxs := []int{}
 	for _, v1 := range b {

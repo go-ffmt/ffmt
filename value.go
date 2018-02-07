@@ -17,8 +17,8 @@ const (
 
 type format struct {
 	optional
-	buf    *bytes.Buffer    // 缓冲
-	filter map[uintptr]bool // 过滤重复地址
+	buf    *bytes.Buffer
+	filter map[uintptr]bool
 }
 
 func (s *format) fmt(va reflect.Value, depth int) {
