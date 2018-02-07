@@ -1,6 +1,8 @@
 package main
 
-import ffmt "gopkg.in/ffmt.v1"
+import (
+	ffmt "gopkg.in/ffmt.v1"
+)
 
 func main() {
 	example()
