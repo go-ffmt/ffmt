@@ -1,5 +1,8 @@
 # Display a friendly fmt for golang
 
+ - [English](./README.md)
+ - [简体中文](./README_cn.md)
+
 ## Install
 
 ``` shell
