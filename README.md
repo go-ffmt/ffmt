@@ -13,9 +13,7 @@ go get -u -v gopkg.in/ffmt.v1
 
 [API Documentation](http://godoc.org/gopkg.in/ffmt.v1)
 
-## Examples
-
-[examples](./examples/main.go)
+[Examples](./examples/main.go)
 
 ``` golang
 package main
