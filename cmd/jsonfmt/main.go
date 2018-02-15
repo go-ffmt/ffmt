@@ -19,18 +19,25 @@ func main() {
 	}
 	b, err := ioutil.ReadFile(*file)
 	if err != nil {
+		fmt.Println(err)
 		flag.PrintDefaults()
 		return
 	}
 	var i interface{}
-	json.Unmarshal(b, &i)
+	err = json.Unmarshal(b, &i)
+	if err != nil {
+		fmt.Println(err)
+		flag.PrintDefaults()
+		return
+	}
 	ret := ffmt.Spjson(i)
 	if *out == "" {
 		fmt.Print(ret)
 		return
 	}
-	err = ioutil.WriteFile(*out, []byte(ret), 0777)
+	err = ioutil.WriteFile(*out, []byte(ret), 0666)
 	if err != nil {
+		fmt.Println(err)
 		flag.PrintDefaults()
 		return
 	}
