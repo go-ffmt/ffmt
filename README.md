@@ -1,4 +1,4 @@
-# Display a friendly fmt for golang
+# Friendly data formatting for golang
 
  - [English](./README.md)
  - [简体中文](./README_cn.md)
