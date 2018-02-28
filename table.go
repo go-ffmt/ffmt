@@ -58,7 +58,7 @@ func FmtTable(b [][]string) (ss []string) {
 			if len(maxs) == k {
 				maxs = append(maxs, 0)
 			}
-			if b := Biglen(v2); maxs[k] < b {
+			if b := strLen(v2); maxs[k] < b {
 				maxs[k] = b
 			}
 		}
@@ -68,7 +68,7 @@ func FmtTable(b [][]string) (ss []string) {
 		buf.Reset()
 		for k, v2 := range v1 {
 			buf.WriteString(v2)
-			ps := maxs[k] - Biglen(v2) + 1
+			ps := maxs[k] - strLen(v2) + 1
 			for i := 0; i != ps; i++ {
 				buf.WriteByte(' ')
 			}
