@@ -26,6 +26,12 @@ func (s *format) fmt(va reflect.Value, depth int) {
 		s.nilBuf()
 		return
 	}
+
+	if va.Kind() == reflect.Ptr && va.IsNil() {
+		s.nilBuf()
+		return
+	}
+
 	v := va
 	if depth >= s.depth {
 		s.defaultBuf(v)
