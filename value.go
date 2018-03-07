@@ -313,11 +313,11 @@ func (s *format) getString(v reflect.Value) bool {
 
 	switch s.style {
 	case StlyePjson:
-		vv, _ := json.Marshal(v.Interface())
 		r := getString(v)
 		if r == "" {
 			return false
 		}
+		vv, _ := json.Marshal(v.Interface())
 		s.buf.Write(vv)
 	case StlyeP:
 		r := getString(v)
