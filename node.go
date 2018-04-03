@@ -1,16 +1,15 @@
 package ffmt
 
 import (
-	"bytes"
 	"strings"
 )
 
 // 这就是一个二叉树
 type node struct {
-	child *node         // 子节点 左
-	next  *node         // 下节点 右
-	value *bytes.Buffer // 数据
-	colon int           // 这是用冒号分割的数据 冒号的位置 用来对齐冒号后面的数据
+	child *node   // 子节点 左
+	next  *node   // 下节点 右
+	value builder // 数据
+	colon int     // 这是用冒号分割的数据 冒号的位置 用来对齐冒号后面的数据
 }
 
 // 缩进空的括号
@@ -20,7 +19,7 @@ func (n *node) lrPos() {
 		if x.child != nil {
 			continue
 		}
-		ss := x.next.value.Bytes()
+		ss := x.next.value.String()
 		if len(ss) == 2 && (ss[1] == ')' || ss[1] == ']' || ss[1] == '}') {
 			x.mergeNext(1)
 		}
@@ -102,7 +101,7 @@ func (n *node) spac(i int) {
 // 合并下一个节点到当前节点
 func (n *node) mergeNext(max int) {
 	n.spac(max - strLen(n.value.String()))
-	n.next.value.WriteTo(n.value)
+	n.value.WriteString(n.next.value.String())
 	putBuilder(n.next.value)
 	n.next = n.next.next
 }
@@ -168,9 +167,9 @@ func (n *node) String() string {
 	return ""
 }
 
-func (n *node) strings(d int, buf *bytes.Buffer) {
+func (n *node) strings(d int, buf builder) {
 	buf.WriteString(spacing(d))
-	n.value.WriteTo(buf)
+	buf.WriteString(n.value.String())
 	if n.child != nil {
 		n.child.strings(d+1, buf)
 	}

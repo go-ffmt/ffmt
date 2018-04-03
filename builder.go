@@ -1,22 +1,31 @@
 package ffmt
 
 import (
-	"bytes"
+	"fmt"
 	"sync"
 )
 
-var pool = sync.Pool{
-	New: func() interface{} {
-		return bytes.NewBuffer(nil)
-	},
+type builder interface {
+	fmt.Stringer
+	Write([]byte) (int, error)       // io.Writer
+	WriteString(string) (int, error) // io.writeString
+	WriteByte(byte) error            // io.ByteWriter
+	WriteRune(rune) (int, error)
+	Reset()
+	Grow(int)
+	Len() int
 }
 
-func getBuilder() *bytes.Buffer {
-	buf := pool.Get().(*bytes.Buffer)
-	buf.Reset()
+var poolBuilder = sync.Pool{
+	New: newBuilder,
+}
+
+func getBuilder() builder {
+	buf := poolBuilder.Get().(builder)
 	return buf
 }
 
-func putBuilder(buf *bytes.Buffer) {
-	pool.Put(buf)
+func putBuilder(buf builder) {
+	buf.Reset()
+	poolBuilder.Put(buf)
 }

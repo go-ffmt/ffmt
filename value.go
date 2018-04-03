@@ -1,7 +1,6 @@
 package ffmt
 
 import (
-	"bytes"
 	"encoding/json"
 	"fmt"
 	"go/ast"
@@ -17,7 +16,7 @@ const (
 
 type format struct {
 	optional
-	buf    *bytes.Buffer
+	buf    builder
 	filter map[uintptr]bool
 }
 
