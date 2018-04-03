@@ -1,20 +1,12 @@
 package ffmt
 
 import (
-	"bytes"
 	"fmt"
-	"sync"
 	"unicode/utf8"
 )
 
 var Printf = fmt.Printf
 var Println = fmt.Println
-
-var pool = sync.Pool{
-	New: func() interface{} {
-		return bytes.NewBuffer(nil)
-	},
-}
 
 func runeWidth(r rune) int {
 	switch {

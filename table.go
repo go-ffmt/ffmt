@@ -1,7 +1,6 @@
 package ffmt
 
 import (
-	"bytes"
 	"fmt"
 	"reflect"
 )
@@ -63,7 +62,7 @@ func FmtTable(b [][]string) (ss []string) {
 			}
 		}
 	}
-	buf := bytes.NewBuffer(nil)
+	buf := getBuilder()
 	for _, v1 := range b {
 		buf.Reset()
 		for k, v2 := range v1 {
@@ -75,5 +74,6 @@ func FmtTable(b [][]string) (ss []string) {
 		}
 		ss = append(ss, buf.String())
 	}
+	putBuilder(buf)
 	return
 }

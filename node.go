@@ -103,7 +103,7 @@ func (n *node) spac(i int) {
 func (n *node) mergeNext(max int) {
 	n.spac(max - strLen(n.value.String()))
 	n.next.value.WriteTo(n.value)
-	pool.Put(n.next.value)
+	putBuilder(n.next.value)
 	n.next = n.next.next
 }
 
@@ -145,7 +145,7 @@ func (n *node) colonPos() {
 
 func (n *node) put() {
 	if n.value != nil {
-		pool.Put(n.value)
+		putBuilder(n.value)
 		n.value = nil
 	}
 	if n.child != nil {
@@ -158,9 +158,8 @@ func (n *node) put() {
 }
 
 func (n *node) String() string {
-	buf := pool.Get().(*bytes.Buffer)
-	buf.Reset()
-	defer pool.Put(buf)
+	buf := getBuilder()
+	defer putBuilder(buf)
 	n.strings(0, buf)
 	s := buf.String()
 	if len(s) >= 2 {
@@ -183,8 +182,7 @@ func (n *node) strings(d int, buf *bytes.Buffer) {
 
 func (n *node) toChild() (e *node) {
 	if n.child == nil {
-		buf := pool.Get().(*bytes.Buffer)
-		buf.Reset()
+		buf := getBuilder()
 		n.child = &node{
 			value: buf,
 		}
@@ -194,8 +192,7 @@ func (n *node) toChild() (e *node) {
 
 func (n *node) toNext() (e *node) {
 	if n.next == nil {
-		buf := pool.Get().(*bytes.Buffer)
-		buf.Reset()
+		buf := getBuilder()
 		n.next = &node{
 			value: buf,
 		}
@@ -221,8 +218,7 @@ func stringToNode(a string) *node {
 	depth := 0
 	o := &node{}
 	x := o
-	buf := pool.Get().(*bytes.Buffer)
-	buf.Reset()
+	buf := getBuilder()
 	x.value = buf
 	st := []*node{}
 	for i := 0; i != len(ss); i++ {
