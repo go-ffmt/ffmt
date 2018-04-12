@@ -1,5 +1,10 @@
 # Friendly data formatting for golang
 
+[![Build Status](https://travis-ci.org/go-ffmt/ffmt.svg?branch=master)](https://travis-ci.org/go-ffmt/ffmt)
+[![Go Report Card](https://goreportcard.com/badge/gopkg.in/ffmt.v1)](https://goreportcard.com/report/gopkg.in/ffmt.v1)
+[![GoDoc](https://godoc.org/gopkg.in/ffmt.v1?status.svg)](https://godoc.org/gopkg.in/ffmt.v1)
+[![MIT license](https://img.shields.io/badge/license-MIT-brightgreen.svg)](https://opensource.org/licenses/MIT)
+
  - [English](./README.md)
  - [简体中文](./README_cn.md)
 
@@ -102,8 +107,6 @@ func example() {
 
 
 
-## MIT License
+## License
 
-Copyright © 2017-2018 wzshiming<[https://github.com/wzshiming](https://github.com/wzshiming)>.
-
-MIT is open-sourced software licensed under the [MIT License](https://opensource.org/licenses/MIT).
+Pouch is licensed under the MIT License. See [LICENSE](./LICENSE) for the full license text.
