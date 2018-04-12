@@ -3,7 +3,7 @@
 [![Build Status](https://travis-ci.org/go-ffmt/ffmt.svg?branch=master)](https://travis-ci.org/go-ffmt/ffmt)
 [![Go Report Card](https://goreportcard.com/badge/gopkg.in/ffmt.v1)](https://goreportcard.com/report/gopkg.in/ffmt.v1)
 [![GoDoc](https://godoc.org/gopkg.in/ffmt.v1?status.svg)](https://godoc.org/gopkg.in/ffmt.v1)
-[![MIT license](https://img.shields.io/badge/license-MIT-brightgreen.svg)](https://opensource.org/licenses/MIT)
+[![GitHub license](https://img.shields.io/github/license/go-ffmt/ffmt.svg)](https://github.com/go-ffmt/ffmt/blob/master/LICENSE)
 
  - [English](./README.md)
  - [简体中文](./README_cn.md)
