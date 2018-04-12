@@ -64,6 +64,11 @@ func (s *format) fmt(va reflect.Value, depth int) {
 			return
 		}
 	}
+	s.switchType(v, depth)
+	return
+}
+
+func (s *format) switchType(v reflect.Value, depth int) {
 	switch v.Kind() {
 	case reflect.Invalid:
 		s.nilBuf()
