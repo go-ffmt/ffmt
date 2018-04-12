@@ -82,8 +82,10 @@ func (s *format) fmt(va reflect.Value, depth int) {
 		s.stringBuf(v)
 	case reflect.Func:
 		s.funcBuf(v)
-	case reflect.Uintptr, reflect.UnsafePointer:
-		s.xxBuf(v, v.Uint())
+	case reflect.UnsafePointer:
+		s.xxBuf(v, v.Pointer())
+	case reflect.Uintptr:
+		s.xxBuf(v, v.Pointer())
 	case reflect.Chan, reflect.Ptr:
 		s.xxBuf(v, v.Pointer())
 	case reflect.Interface:
