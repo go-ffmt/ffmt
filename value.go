@@ -56,7 +56,7 @@ func (s *format) fmt(va reflect.Value, depth int) {
 			return
 		}
 		switch s.style {
-		case StlyePjson:
+		case StylePjson:
 		default:
 			s.buf.WriteByte('&')
 		}
@@ -69,7 +69,7 @@ func (s *format) fmt(va reflect.Value, depth int) {
 		s.nilBuf()
 	case reflect.Struct:
 		switch s.style {
-		case StlyePjson:
+		case StylePjson:
 			s.mapBuf(reflect.ValueOf(struct2Map(v)), depth)
 		default:
 			s.structBuf(v, depth)
@@ -113,7 +113,7 @@ func (s *format) depthBuf(i int) {
 // 空数据 写入缓冲
 func (s *format) nilBuf() {
 	switch s.style {
-	case StlyePjson:
+	case StylePjson:
 		s.buf.WriteString(invalidJson)
 	default:
 		s.buf.WriteString(invalid)
@@ -124,12 +124,12 @@ func (s *format) nilBuf() {
 // 默认格式化 写入缓冲
 func (s *format) defaultBuf(v reflect.Value) {
 	switch s.style {
-	case StlyeP:
+	case StyleP:
 		s.nameBuf(v)
 		s.buf.WriteByte('(')
 		s.buf.WriteString(fmt.Sprint(v.Interface()))
 		s.buf.WriteByte(')')
-	case StlyePjson:
+	case StylePjson:
 		m, ok := v.Interface().(json.Marshaler)
 		if ok {
 			js, _ := m.MarshalJSON()
@@ -147,9 +147,9 @@ func (s *format) defaultBuf(v reflect.Value) {
 // string格式化 写入缓冲
 func (s *format) stringBuf(v reflect.Value) {
 	switch s.style {
-	case StlyeP:
+	case StyleP:
 		s.defaultBuf(v)
-	case StlyePuts, StlyePjson:
+	case StylePuts, StylePjson:
 		s.buf.WriteByte('"')
 		s.buf.WriteString(strings.Replace(v.String(), `"`, `\"`, -1))
 		s.buf.WriteByte('"')
@@ -162,10 +162,10 @@ func (s *format) stringBuf(v reflect.Value) {
 // func格式化 写入缓冲
 func (s *format) funcBuf(v reflect.Value) {
 	switch s.style {
-	case StlyePjson:
+	case StylePjson:
 		s.buf.WriteByte('"')
 		defer s.buf.WriteByte('"')
-	case StlyeP:
+	case StyleP:
 		s.buf.WriteByte('<')
 		defer s.buf.WriteByte('>')
 	}
@@ -200,10 +200,10 @@ func (s *format) funcBuf(v reflect.Value) {
 // 16进制类型格式化 写入缓冲
 func (s *format) xxBuf(v reflect.Value, i interface{}) {
 	switch s.style {
-	case StlyePjson:
+	case StylePjson:
 		s.buf.WriteByte('"')
 		defer s.buf.WriteByte('"')
-	case StlyeP:
+	case StyleP:
 		s.buf.WriteByte('<')
 		defer s.buf.WriteByte('>')
 	}
@@ -244,7 +244,7 @@ func (s *format) mapBuf(v reflect.Value, depth int) {
 	for i := 0; i != len(mk); i++ {
 		k := mk[i]
 		switch s.style {
-		case StlyePjson:
+		case StylePjson:
 			if i != 0 {
 				s.depthBuf(depth)
 				s.buf.WriteByte(',')
@@ -269,7 +269,7 @@ func (s *format) sliceBuf(v reflect.Value, depth int) {
 	s.buf.WriteByte('[')
 	for i := 0; i != v.Len(); i++ {
 		switch s.style {
-		case StlyePjson:
+		case StylePjson:
 			if i != 0 {
 				s.depthBuf(depth)
 				s.buf.WriteByte(',')
@@ -289,7 +289,7 @@ func (s *format) sliceBuf(v reflect.Value, depth int) {
 // 获得类型名 写入缓冲
 func (s *format) nameBuf(v reflect.Value) {
 	switch s.style {
-	case StlyeP:
+	case StyleP:
 		t := v.Type()
 		if t.PkgPath() != "" {
 			s.buf.WriteString(t.PkgPath())
@@ -313,14 +313,14 @@ func (s *format) getString(v reflect.Value) bool {
 	}
 
 	switch s.style {
-	case StlyePjson:
+	case StylePjson:
 		r := getString(v)
 		if r == "" {
 			return false
 		}
 		vv, _ := json.Marshal(v.Interface())
 		s.buf.Write(vv)
-	case StlyeP:
+	case StyleP:
 		r := getString(v)
 		if r == "" {
 			return false

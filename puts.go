@@ -9,74 +9,74 @@ const colSym = ": "
 // Space rune
 var Space byte = ' '
 
-// P go stlye display types
-var defP = NewOptional(5, StlyeP, CanDefaultString|CanFilterDuplicate|CanRowSpan)
+// P go style display types
+var defP = NewOptional(5, StyleP, CanDefaultString|CanFilterDuplicate|CanRowSpan)
 
-// Fp The go stlye friendly display types and data to writer
+// Fp The go style friendly display types and data to writer
 func Fp(w io.Writer, a ...interface{}) (int, error) {
 	return defP.Fprint(w, a...)
 }
 
-// P The go stlye friendly display types and data
+// P The go style friendly display types and data
 func P(a ...interface{}) (int, error) {
 	return defP.Print(a...)
 }
 
-// Sp The go stlye friendly display types and data to string
+// Sp The go style friendly display types and data to string
 func Sp(a ...interface{}) string {
 	return defP.Sprint(a...)
 }
 
-// Puts go stlye
-var defPuts = NewOptional(5, StlyePuts, CanDefaultString|CanFilterDuplicate|CanRowSpan)
+// Puts go style
+var defPuts = NewOptional(5, StylePuts, CanDefaultString|CanFilterDuplicate|CanRowSpan)
 
-// Fputs The go stlye friendly to writer
+// Fputs The go style friendly to writer
 func Fputs(w io.Writer, a ...interface{}) (int, error) {
 	return defPuts.Fprint(w, a...)
 }
 
-// Puts The go stlye friendly display
+// Puts The go style friendly display
 func Puts(a ...interface{}) (int, error) {
 	return defPuts.Print(a...)
 }
 
-// Sputs The go stlye friendly to string
+// Sputs The go style friendly to string
 func Sputs(a ...interface{}) string {
 	return defPuts.Sprint(a...)
 }
 
-// Print go stlye
-var defPrint = NewOptional(5, StlyePrint, CanDefaultString|CanFilterDuplicate|CanRowSpan)
+// Print go style
+var defPrint = NewOptional(5, StylePrint, CanDefaultString|CanFilterDuplicate|CanRowSpan)
 
-// Fprint The go stlye friendly to writer
+// Fprint The go style friendly to writer
 func Fprint(w io.Writer, a ...interface{}) (int, error) {
 	return defPrint.Fprint(w, a...)
 }
 
-// Print The go stlye friendly display
+// Print The go style friendly display
 func Print(a ...interface{}) (int, error) {
 	return defPrint.Print(a...)
 }
 
-// Sprint The go stlye friendly to string
+// Sprint The go style friendly to string
 func Sprint(a ...interface{}) string {
 	return defPrint.Sprint(a...)
 }
 
-// Pjson json stlye
-var defPjson = NewOptional(20, StlyePjson, CanDefaultString|CanRowSpan)
+// Pjson json style
+var defPjson = NewOptional(20, StylePjson, CanDefaultString|CanRowSpan)
 
-// Fpjson The json stlye friendly display to writer
+// Fpjson The json style friendly display to writer
 func Fpjson(w io.Writer, a ...interface{}) (int, error) {
 	return defPjson.Fprint(w, a...)
 }
 
-// Pjson The json stlye friendly display
+// Pjson The json style friendly display
 func Pjson(a ...interface{}) (int, error) {
 	return defPjson.Print(a...)
 }
 
-// Spjson The json stlye friendly display to string
+// Spjson The json style friendly display to string
 func Spjson(a ...interface{}) string {
 	return defPjson.Sprint(a...)
 }

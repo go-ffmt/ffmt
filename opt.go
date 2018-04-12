@@ -7,13 +7,13 @@ import (
 )
 
 type optional struct {
-	style stlye  // Format style
+	style style  // Format style
 	depth int    // Maximum recursion depth
 	opt   option // Option
 }
 
 // NewOptional ffmt optional
-func NewOptional(depth int, b stlye, opt option) *optional {
+func NewOptional(depth int, b style, opt option) *optional {
 	return &optional{
 		style: b,
 		opt:   opt,
@@ -74,12 +74,12 @@ func (t option) IsCanRowSpan() bool {
 	return (t & CanRowSpan) != 0
 }
 
-type stlye int
+type style int
 
 // Formatted style
 const (
-	StlyeP     stlye = iota + 1 // Display type and data
-	StlyePuts                   // Display data
-	StlyePrint                  // Display data; string without quotes
-	StlyePjson                  // The json stlye display; Do not show private
+	StyleP     style = iota + 1 // Display type and data
+	StylePuts                   // Display data
+	StylePrint                  // Display data; string without quotes
+	StylePjson                  // The json style display; Do not show private
 )
