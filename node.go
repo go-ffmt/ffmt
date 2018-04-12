@@ -29,7 +29,6 @@ func (n *node) lrPos() {
 // 对齐数组类型的数据
 func (n *node) tablePos() {
 	ms := []int{}
-	sum := 0
 	b := n
 	max := 0
 	for x := b; x != nil; x = x.next {
@@ -38,7 +37,6 @@ func (n *node) tablePos() {
 		}
 		ll := strLen(x.value.String())
 		ms = append(ms, ll)
-		sum += ll
 		if ll > max {
 			max = ll
 		}
