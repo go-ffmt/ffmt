@@ -8,7 +8,7 @@ import (
 	"strings"
 )
 
-// Output stack full
+// MarkStackFull Output stack full
 func MarkStackFull() {
 	for i := 1; ; i++ {
 		s := FMakeStackFunc(i)
@@ -19,12 +19,12 @@ func MarkStackFull() {
 	}
 }
 
-// Output prefix stack line pos
+// MarkStack Output prefix stack line pos
 func MarkStack(skip int, a ...interface{}) {
 	fmt.Println(append([]interface{}{FMakeStack(skip + 1)}, a...)...)
 }
 
-// Output prefix current line position
+// Mark Output prefix current line position
 func Mark(a ...interface{}) {
 	MarkStack(1, a...)
 }
@@ -55,6 +55,7 @@ func getRelativeDirectory(basepath, targpath string) string {
 	return targpath
 }
 
+// FMakeStack stack information
 func FMakeStack(skip int) string {
 	_, fileName, line, ok := runtime.Caller(skip + 1)
 	if !ok {
@@ -64,6 +65,7 @@ func FMakeStack(skip int) string {
 	return fmt.Sprintf("%s:%d ", fileName, line)
 }
 
+// FMakeStackFunc stack information
 func FMakeStackFunc(skip int) string {
 	pc, fileName, line, ok := runtime.Caller(skip + 1)
 	if !ok {

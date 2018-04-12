@@ -12,6 +12,7 @@ type optional struct {
 	opt   option // Option
 }
 
+// NewOptional ffmt optional
 func NewOptional(depth int, b stlye, opt option) *optional {
 	return &optional{
 		style: b,
@@ -54,6 +55,7 @@ func (s *optional) Sprint(i ...interface{}) string {
 
 type option uint32
 
+// Formatted option
 const (
 	CanDefaultString   option = 1 << (31 - iota) // can use .(fmt.Stringer)
 	CanFilterDuplicate                           // Filter duplicates
@@ -74,6 +76,7 @@ func (t option) IsCanRowSpan() bool {
 
 type stlye int
 
+// Formatted style
 const (
 	StlyeP     stlye = iota + 1 // Display type and data
 	StlyePuts                   // Display data

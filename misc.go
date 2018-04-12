@@ -5,7 +5,10 @@ import (
 	"unicode/utf8"
 )
 
+// Printf fmt.Printf
 var Printf = fmt.Printf
+
+// Println fmt.Println
 var Println = fmt.Println
 
 func runeWidth(r rune) int {

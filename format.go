@@ -45,7 +45,7 @@ func formatMap(str string, par map[string]string) string {
 	})
 }
 
-// Format
+// Format  Format("hello {name}", "ffmt") to "hello ffmt"
 func Format(str string, data ...interface{}) string {
 	par := map[string]string{}
 	for _, d := range data {
