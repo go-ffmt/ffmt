@@ -5,3 +5,5 @@ go:
   - "1.9"
   - "1.10"
   - master
+
+go_import_path: gopkg.in/ffmt.v1
