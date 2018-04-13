@@ -32,75 +32,120 @@ func main() {
 }
 
 func example() {
-	m := map[string]interface{}{
-		"hello": "w",
-		"A": []int{
-			1, 2, 3, 4, 5, 6,
+	m := struct {
+		String string
+		Int    int
+		Slice  []int
+		Map    map[string]interface{}
+	}{
+		"hello world",
+		100,
+		[]int{1, 2, 3, 4, 5, 6},
+		map[string]interface{}{
+			"A":  123,
+			"BB": 456,
 		},
 	}
 
-	ffmt.Puts(m)
+	fmt.Println(m) // fmt the default formatting.
 	/*
-	   {
-	    "A": [
-	     1 2 3
-	     4 5 6
-	    ]
-	    "hello": "w"
-	   }
+		{hello world 100 [1 2 3 4 5 6] map[BB:456 A:123]}
 	*/
 
-	ffmt.P(m)
+	ffmt.Puts(m) // More friendly formatting.
 	/*
-	   map{
-	    string(A): slice[
-	     int(1) int(2) int(3)
-	     int(4) int(5) int(6)
-	    ]
-	    string(hello): string(w)
-	   }
+		{
+		 String: "hello world"
+		 Int:    100
+		 Slice:  [
+		  1 2 3
+		  4 5 6
+		 ]
+		 Map: {
+		  "A":  123
+		  "BB": 456
+		 }
+		}
 	*/
 
-	ffmt.Pjson(m)
+	ffmt.Print(m) // Same "Puts" but String unadded '"'.
 	/*
-	   {
-	    "A": [
-	     1,2,3
-	    ,4,5,6
-	    ]
-	   ,"hello": "w"
-	   }
+		{
+		 String: hello world
+		 Int:    100
+		 Slice:  [
+		  1 2 3
+		  4 5 6
+		 ]
+		 Map: {
+		  A:  123
+		  BB: 456
+		 }
+		}
 	*/
 
-	m0 := ffmt.ToTable(m, m)
+	ffmt.P(m) // Format data and types.
+	/*
+		struct{
+		 String: string(hello world)
+		 Int:    int(100)
+		 Slice:  slice[
+		  int(1) int(2) int(3)
+		  int(4) int(5) int(6)
+		 ]
+		 Map: map{
+		  string(A):  int(123)
+		  string(BB): int(456)
+		 }
+		}
+	*/
+
+	ffmt.Pjson(m) // Format it in json style.
+	/*
+		{
+		 "Int": 100
+		,"Map": {
+		  "A":  123
+		 ,"BB": 456
+		 }
+		,"Slice": [
+		  1,2,3
+		 ,4,5,6
+		 ]
+		,"String": "hello world"
+		}
+	*/
+
+	m0 := ffmt.ToTable(m, m) // Break the fields into tables.
 	ffmt.Puts(m0)
 	/*
-	   [
-	    [
-	     "A"
-	     "hello"
-	    ]
-	    [
-	     "[1 2 3 4 5 6]"
-	     "w"
-	    ]
-	   ]
+		[
+		 [
+		  "String" "Int"
+		  "Slice"  "Map"
+		 ]
+		 [
+		  "hello world"   "100"
+		  "[1 2 3 4 5 6]" "map[A:123 BB:456]"
+		 ]
+		]
 	*/
 
-	m1 := ffmt.FmtTable(m0)
+	m1 := ffmt.FmtTable(m0) // [][]string Table format.
 	ffmt.Puts(m1)
 	/*
-	   [
-	    "A             hello "
-	    "[1 2 3 4 5 6] w     "
-	   ]
+		[
+		 "String      Int Slice         Map               "
+		 "hello world 100 [1 2 3 4 5 6] map[A:123 BB:456] "
+		]
 	*/
 
-	ffmt.Mark("hello")
+	ffmt.Mark("hello") // Mark position.
 	/*
-	   main.go:76  hello
+	   main.go:122  hello
 	*/
 }
+
 
 ```
 
