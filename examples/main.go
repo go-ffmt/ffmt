@@ -121,6 +121,6 @@ func example() {
 
 	ffmt.Mark("hello") // 标记输出位置
 	/*
-	   main.go:122  hello
+		main.go:122  hello
 	*/
 }

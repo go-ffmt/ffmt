@@ -142,7 +142,7 @@ func example() {
 
 	ffmt.Mark("hello") // Mark position.
 	/*
-	   main.go:122  hello
+		main.go:122  hello
 	*/
 }
 
