@@ -87,11 +87,9 @@ func (s *format) switchType(v reflect.Value, depth int) {
 		s.stringBuf(v)
 	case reflect.Func:
 		s.funcBuf(v)
-	case reflect.UnsafePointer:
-		s.xxBuf(v, v.Pointer())
 	case reflect.Uintptr:
-		s.xxBuf(v, v.Pointer())
-	case reflect.Chan, reflect.Ptr:
+		s.xxBuf(v, v.Uint())
+	case reflect.Chan, reflect.Ptr, reflect.UnsafePointer:
 		s.xxBuf(v, v.Pointer())
 	case reflect.Interface:
 		v = v.Elem()
@@ -132,19 +130,13 @@ func (s *format) defaultBuf(v reflect.Value) {
 	case StyleP:
 		s.nameBuf(v)
 		s.buf.WriteByte('(')
-		s.buf.WriteString(fmt.Sprint(v.Interface()))
+		fmt.Fprintf(s.buf, "%#v", v.Interface())
 		s.buf.WriteByte(')')
 	case StylePjson:
-		m, ok := v.Interface().(json.Marshaler)
-		if ok {
-			js, _ := m.MarshalJSON()
-			s.buf.Write(js)
-		} else {
-			js, _ := json.Marshal(v.Interface())
-			s.buf.Write(js)
-		}
+		d, _ := json.Marshal(v.Interface())
+		s.buf.Write(d)
 	default:
-		s.buf.WriteString(fmt.Sprint(v.Interface()))
+		fmt.Fprintf(s.buf, "%+v", v.Interface())
 	}
 	return
 }
@@ -198,7 +190,7 @@ func (s *format) funcBuf(v reflect.Value) {
 		}
 	}
 	s.buf.WriteByte(')')
-	s.buf.WriteString(fmt.Sprintf("(0x%020x)", v.Pointer()))
+	fmt.Fprintf(s.buf, "(0x%020x)", v.Pointer())
 	return
 }
 
@@ -213,7 +205,7 @@ func (s *format) xxBuf(v reflect.Value, i interface{}) {
 		defer s.buf.WriteByte('>')
 	}
 	s.nameBuf(v)
-	s.buf.WriteString(fmt.Sprintf("(0x%020x)", i))
+	fmt.Fprintf(s.buf, "(0x%020x)", i)
 	return
 }
 
@@ -359,7 +351,6 @@ func getString(v reflect.Value) string {
 // 判断是私有名
 func isPrivateName(n string) bool {
 	return !ast.IsExported(n)
-	//return len(n) == 0 || n[0] < 'A' || n[0] > 'Z'
 }
 
 // struct转map
