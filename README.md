@@ -16,7 +16,7 @@ go get -u -v gopkg.in/ffmt.v1
 
 ## Usage
 
-[API Documentation](http://godoc.org/gopkg.in/ffmt.v1)
+[API Documentation](https://godoc.org/gopkg.in/ffmt.v1)
 
 [Examples](./examples/main.go)
 

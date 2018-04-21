@@ -16,7 +16,7 @@ go get -u -v gopkg.in/ffmt.v1
 
 ## 用法
 
-[API 文档](http://godoc.org/gopkg.in/ffmt.v1)
+[API 文档](https://godoc.org/gopkg.in/ffmt.v1)
 
 [示例](./examples/main.go)
 
