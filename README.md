@@ -11,7 +11,11 @@
 ## Install
 
 ``` shell
+# Stable version
 go get -u -v gopkg.in/ffmt.v1
+
+# Latest version
+go get -u -v github.com/go-ffmt/ffmt
 ```
 
 ## Usage

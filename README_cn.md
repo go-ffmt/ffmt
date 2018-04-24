@@ -11,7 +11,11 @@
 ## 安装
 
 ``` shell
+# 稳定版本
 go get -u -v gopkg.in/ffmt.v1
+
+# 最新版本
+go get -u -v github.com/go-ffmt/ffmt
 ```
 
 ## 用法
