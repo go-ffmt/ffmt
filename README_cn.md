@@ -5,8 +5,8 @@
 [![GoDoc](https://godoc.org/gopkg.in/ffmt.v1?status.svg)](https://godoc.org/gopkg.in/ffmt.v1)
 [![GitHub license](https://img.shields.io/github/license/go-ffmt/ffmt.svg)](https://github.com/go-ffmt/ffmt/blob/master/LICENSE)
 
- - [English](./README.md)
- - [简体中文](./README_cn.md)
+- [English](https://github.com/go-ffmt/ffmt/blob/master/README.md)
+- [简体中文](https://github.com/go-ffmt/ffmt/blob/master/README_cn.md)
 
 ## 安装
 
@@ -22,7 +22,7 @@ go get -u -v github.com/go-ffmt/ffmt
 
 [API 文档](https://godoc.org/gopkg.in/ffmt.v1)
 
-[示例](./examples/main.go)
+[示例](https://github.com/go-ffmt/ffmt/blob/master/examples/main.go)
 
 ``` golang
 package main
@@ -153,4 +153,4 @@ func example() {
 
 ## 许可证
 
-软包根据MIT License。有关完整的许可证文本，请参阅[LICENSE](./LICENSE)。
+软包根据MIT License。有关完整的许可证文本，请参阅[LICENSE](https://github.com/go-ffmt/ffmt/blob/master/LICENSE)。

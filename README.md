@@ -5,8 +5,8 @@
 [![GoDoc](https://godoc.org/gopkg.in/ffmt.v1?status.svg)](https://godoc.org/gopkg.in/ffmt.v1)
 [![GitHub license](https://img.shields.io/github/license/go-ffmt/ffmt.svg)](https://github.com/go-ffmt/ffmt/blob/master/LICENSE)
 
- - [English](./README.md)
- - [简体中文](./README_cn.md)
+- [English](https://github.com/go-ffmt/ffmt/blob/master/README.md)
+- [简体中文](https://github.com/go-ffmt/ffmt/blob/master/README_cn.md)
 
 ## Install
 
@@ -22,7 +22,7 @@ go get -u -v github.com/go-ffmt/ffmt
 
 [API Documentation](https://godoc.org/gopkg.in/ffmt.v1)
 
-[Examples](./examples/main.go)
+[Examples](https://github.com/go-ffmt/ffmt/blob/master/examples/main.go)
 
 ``` golang
 package main
@@ -158,4 +158,4 @@ func example() {
 
 ## License
 
-Pouch is licensed under the MIT License. See [LICENSE](./LICENSE) for the full license text.
+Pouch is licensed under the MIT License. See [LICENSE](https://github.com/go-ffmt/ffmt/blob/master/LICENSE) for the full license text.
