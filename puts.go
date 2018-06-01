@@ -9,6 +9,14 @@ const colSym = ": "
 // Space rune
 var Space byte = ' '
 
+// p go style display types for debug
+var defD = NewOptional(10, StyleP, CanFilterDuplicate|CanRowSpan)
+
+// D for debug
+func D(a ...interface{}) {
+	MarkStack(1, defD.Sprint(a...))
+}
+
 // P go style display types
 var defP = NewOptional(5, StyleP, CanDefaultString|CanFilterDuplicate|CanRowSpan)
 
