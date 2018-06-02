@@ -5,7 +5,6 @@ import (
 	"flag"
 	"fmt"
 	"io/ioutil"
-	"strings"
 
 	"gopkg.in/ffmt.v1"
 )
@@ -43,7 +42,6 @@ func main() {
 		return
 	}
 
-	ret := strings.Join(rows, "\n")
 	if *out != "" {
 		err = ioutil.WriteFile(*out, []byte(ret), 0666)
 		if err != nil {
