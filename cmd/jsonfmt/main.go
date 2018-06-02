@@ -5,14 +5,21 @@ import (
 	"flag"
 	"fmt"
 	"io/ioutil"
+	"strings"
 
 	"gopkg.in/ffmt.v1"
 )
 
-func main() {
-	file := flag.String("f", "", "json file")
-	out := flag.String("o", "", "out file")
+var (
+	file = flag.String("f", "", "json file")
+	out  = flag.String("o", "", "out file")
+)
+
+func init() {
 	flag.Parse()
+}
+
+func main() {
 	if *file == "" {
 		flag.PrintDefaults()
 		return
@@ -35,11 +42,17 @@ func main() {
 		fmt.Print(ret)
 		return
 	}
-	err = ioutil.WriteFile(*out, []byte(ret), 0666)
-	if err != nil {
-		fmt.Println(err)
-		flag.PrintDefaults()
-		return
+
+	ret := strings.Join(rows, "\n")
+	if *out != "" {
+		err = ioutil.WriteFile(*out, []byte(ret), 0666)
+		if err != nil {
+			fmt.Println(err)
+			flag.PrintDefaults()
+			return
+		}
+	} else {
+		fmt.Print(ret)
 	}
 	return
 }
