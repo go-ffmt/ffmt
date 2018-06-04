@@ -3,6 +3,8 @@ package ffmt
 import (
 	"fmt"
 	"reflect"
+	"strings"
+	"unicode"
 )
 
 // ToTable Data to table data
@@ -76,4 +78,43 @@ func FmtTable(b [][]string) (ss []string) {
 	}
 	putBuilder(buf)
 	return
+}
+
+// TableText table text
+func TableText(b string, prefix, split string) string {
+	rows := []string{}
+	table := [][]string{}
+	for _, v := range strings.Split(b, "\n") {
+		if prefix != "" && !strings.HasPrefix(v, prefix) {
+			if len(table) != 0 {
+				for _, v := range FmtTable(table) {
+					rows = append(rows, v)
+				}
+				table = table[:0]
+			}
+			rows = append(rows, v)
+			continue
+		}
+
+		row := []string{}
+		ss := strings.Split(v, split)
+		for i, col := range ss {
+			if i == 0 {
+				row = append(row, strings.TrimRightFunc(col, unicode.IsSpace))
+			} else {
+				row = append(row, strings.TrimSpace(col))
+			}
+			if i != len(ss)-1 {
+				row[i] = row[i] + split
+			}
+		}
+		table = append(table, row)
+	}
+	if len(table) != 0 {
+		for _, v := range FmtTable(table) {
+			rows = append(rows, v)
+		}
+	}
+	ret := strings.Join(rows, "\n")
+	return ret
 }
