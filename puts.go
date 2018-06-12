@@ -17,6 +17,11 @@ func D(a ...interface{}) {
 	MarkStack(1, defD.Sprint(a...))
 }
 
+// Sd for debug
+func Sd(a ...interface{}) string {
+	return SmarkStack(1, defD.Sprint(a...))
+}
+
 // P go style display types
 var defP = NewOptional(5, StyleP, CanDefaultString|CanFilterDuplicate|CanRowSpan)
 

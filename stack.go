@@ -24,9 +24,19 @@ func MarkStack(skip int, a ...interface{}) {
 	fmt.Println(append([]interface{}{FMakeStack(skip + 1)}, a...)...)
 }
 
+// SmarkStack returns Output prefix stack line pos
+func SmarkStack(skip int, a ...interface{}) string {
+	return fmt.Sprintln(append([]interface{}{FMakeStack(skip + 1)}, a...)...)
+}
+
 // Mark Output prefix current line position
 func Mark(a ...interface{}) {
 	MarkStack(1, a...)
+}
+
+// Smark returns Output prefix current line position
+func Smark(a ...interface{}) string {
+	return SmarkStack(1, a...)
 }
 
 var curDir = getCurrentDirectory()
