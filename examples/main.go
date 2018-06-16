@@ -10,13 +10,15 @@ func main() {
 	example()
 }
 
+type mt struct {
+	String string
+	Int    int
+	Slice  []int
+	Map    map[string]interface{}
+}
+
 func example() {
-	m := struct {
-		String string
-		Int    int
-		Slice  []int
-		Map    map[string]interface{}
-	}{
+	m := mt{
 		"hello world",
 		100,
 		[]int{1, 2, 3, 4, 5, 6},

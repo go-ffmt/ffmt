@@ -296,7 +296,7 @@ func (s *format) nameBuf(v reflect.Value) {
 		if t.Name() != "" {
 			s.buf.WriteString(t.Name())
 		} else {
-			s.buf.WriteString(t.Kind().String())
+			s.buf.WriteString(t.String())
 		}
 	}
 	return
