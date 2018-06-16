@@ -90,16 +90,16 @@ func example() {
 
 	ffmt.P(m) // Format data and types.
 	/*
-		struct{
-		 String: string(hello world)
+		main.mt{
+		 String: string("hello world")
 		 Int:    int(100)
-		 Slice:  slice[
+		 Slice:  []int[
 		  int(1) int(2) int(3)
 		  int(4) int(5) int(6)
 		 ]
-		 Map: map{
-		  string(A):  int(123)
-		  string(BB): int(456)
+		 Map: map[string]interface {}{
+		  string("A"):  int(123)
+		  string("BB"): int(456)
 		 }
 		}
 	*/
@@ -146,7 +146,7 @@ func example() {
 
 	ffmt.Mark("hello") // Mark position.
 	/*
-		main.go:122  hello
+		main.go:124  hello
 	*/
 }
 
