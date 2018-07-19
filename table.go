@@ -21,7 +21,10 @@ func ToTable(t interface{}, is ...interface{}) [][]string {
 	case reflect.Map:
 		ks := val.MapKeys()
 		for i := 0; i != len(ks); i++ {
-			r[0] = append(r[0], fmt.Sprint(ks[i].Interface()))
+			m := ks[i]
+			if m.CanInterface() {
+				r[0] = append(r[0], fmt.Sprint(m.Interface()))
+			}
 		}
 	default:
 		return nil
@@ -33,7 +36,10 @@ func ToTable(t interface{}, is ...interface{}) [][]string {
 		switch val0.Kind() {
 		case reflect.Struct:
 			for i := 0; i != len(r[0]); i++ {
-				r[k+1] = append(r[k+1], fmt.Sprint(val0.FieldByName(r[0][i]).Interface()))
+				field := val0.FieldByName(r[0][i])
+				if field.CanInterface() {
+					r[k+1] = append(r[k+1], fmt.Sprint(field.Interface()))
+				}
 			}
 		case reflect.Map:
 			for i := 0; i != len(r[0]); i++ {
