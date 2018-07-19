@@ -1,68 +1,41 @@
 package ffmt
 
 import (
-	"math"
 	"time"
 
 	"testing"
 )
 
-func TestFmtMap(t *testing.T) {
-	bl := math.Pi / 10
-	mm := map[interface{}]interface{}{}
-	mm["i"] = "cos(i)"
-	for i := float64(0); i <= 2*math.Pi; i += bl {
-		mm[i] = math.Cos(i)
-	}
-	Print(mm)
+func TestNewOptional(t *testing.T) {
+	o := NewOptional(0, 0, 0)
+	o.Print(testdata)
 }
 
-func TestFmtSlice(t *testing.T) {
-	bl := math.Pi / 10
-	mc := []interface{}{}
-	mc = append(mc, "\\", "i", "sin(i)")
-	for i := float64(0); i <= 2*math.Pi; i += bl {
-		mc = append(mc, i/bl+1, i, math.Sin(i))
-	}
-	Print(mc)
+func TestPrint(t *testing.T) {
+	Print(testdata)
 }
 
-func TestFmtElse(t *testing.T) {
-	Print(Test1)
-	Puts(Test1)
-	P(Test1)
-	D(Test1)
+func TestPuts(t *testing.T) {
+	Puts(testdata)
 }
 
-func TestMark(t *testing.T) {
-	MarkStackFull()
+func TestP(t *testing.T) {
+	P(testdata)
 }
 
-func TestTable(t *testing.T) {
-	b := []struct {
-		Na string
-		Ba string
-	}{
-		{"1111", "123123"},
-		{"1", "1231233231"},
-		{"aaaa", "1231231"},
-	}
-	Print(FmtTable(ToTable(b[0], b[0], b[1], b[2], map[string]string{
-		"Na": "aaa3a",
-	})))
+func TestPjson(t *testing.T) {
+	Pjson(testdata)
 }
 
-func TestFmt(t *testing.T) {
-	t.Log(Format("hello {name}", map[string]interface{}{
-		"name": time.Now(),
-	}))
+func TestD(t *testing.T) {
+	D(testdata)
 }
 
 type bbb struct {
 	A int
 }
 
-var Test1 = struct {
+type T struct {
 	bbb
 	Msg  string
 	Msg2 string
@@ -80,7 +53,10 @@ var Test1 = struct {
 	T      time.Time
 	TTT    interface{}
 	Chan   interface{}
-}{
+	Fun    interface{}
+}
+
+var testdata = &T{
 	bbb{},
 	"Display a friendly fmt for golang",
 	"你好",
@@ -106,4 +82,5 @@ var Test1 = struct {
 	time.Now(),
 	nil,
 	make(chan int, 10),
+	Printf,
 }

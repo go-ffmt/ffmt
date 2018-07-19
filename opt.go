@@ -45,7 +45,7 @@ func (s *optional) Sprint(i ...interface{}) string {
 		sb.buf.WriteByte('\n')
 		ret := sb.buf.String()
 		if s.opt.IsCanRowSpan() {
-			return nodes(ret)
+			return Align(ret)
 		}
 		return ret
 	default:

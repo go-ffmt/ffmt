@@ -252,7 +252,8 @@ func stringToNode(a string) *node {
 	return o
 }
 
-func nodes(a string) string {
+// Align returns align structured strings
+func Align(a string) string {
 	s := stringToNode(a)
 	defer s.put()
 	return s.String()
