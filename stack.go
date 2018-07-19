@@ -11,7 +11,7 @@ import (
 // MarkStackFull Output stack full
 func MarkStackFull() {
 	for i := 1; ; i++ {
-		s := FMakeStackFunc(i)
+		s := SmarkStackFunc(i)
 		if s == "" {
 			break
 		}
@@ -21,12 +21,7 @@ func MarkStackFull() {
 
 // MarkStack Output prefix stack line pos
 func MarkStack(skip int, a ...interface{}) {
-	fmt.Println(append([]interface{}{FMakeStack(skip + 1)}, a...)...)
-}
-
-// SmarkStack returns Output prefix stack line pos
-func SmarkStack(skip int, a ...interface{}) string {
-	return fmt.Sprintln(append([]interface{}{FMakeStack(skip + 1)}, a...)...)
+	fmt.Println(append([]interface{}{SmarkStack(skip + 1)}, a...)...)
 }
 
 // Mark Output prefix current line position
@@ -65,18 +60,18 @@ func getRelativeDirectory(basepath, targpath string) string {
 	return targpath
 }
 
-// FMakeStack stack information
-func FMakeStack(skip int) string {
+// SmarkStack stack information
+func SmarkStack(skip int, a ...interface{}) string {
 	_, fileName, line, ok := runtime.Caller(skip + 1)
 	if !ok {
 		return ""
 	}
 	fileName = getRelativeDirectory(curDir, fileName)
-	return fmt.Sprintf("%s:%d ", fileName, line)
+	return fmt.Sprintf("%s:%d %s", fileName, line, fmt.Sprint(a...))
 }
 
-// FMakeStackFunc stack information
-func FMakeStackFunc(skip int) string {
+// SmarkStackFunc stack information
+func SmarkStackFunc(skip int, a ...interface{}) string {
 	pc, fileName, line, ok := runtime.Caller(skip + 1)
 	if !ok {
 		return ""
@@ -84,5 +79,5 @@ func FMakeStackFunc(skip int) string {
 	funcName := runtime.FuncForPC(pc).Name()
 	funcName = filepath.Base(funcName)
 	fileName = getRelativeDirectory(curDir, fileName)
-	return fmt.Sprintf("%s:%d %s ", fileName, line, funcName)
+	return fmt.Sprintf("%s:%d %s %s", fileName, line, funcName, fmt.Sprint(a...))
 }
