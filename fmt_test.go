@@ -29,6 +29,9 @@ func TestFmtSlice(t *testing.T) {
 
 func TestFmtElse(t *testing.T) {
 	Print(Test1)
+	Puts(Test1)
+	P(Test1)
+	D(Test1)
 }
 
 func TestMark(t *testing.T) {
