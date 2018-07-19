@@ -1,8 +1,8 @@
 # golang 美化数据展示
 
 [![Build Status](https://travis-ci.org/go-ffmt/ffmt.svg?branch=master)](https://travis-ci.org/go-ffmt/ffmt)
-[![Go Report Card](https://goreportcard.com/badge/gopkg.in/ffmt.v1)](https://goreportcard.com/report/gopkg.in/ffmt.v1)
-[![GoDoc](https://godoc.org/gopkg.in/ffmt.v1?status.svg)](https://godoc.org/gopkg.in/ffmt.v1)
+[![Go Report Card](https://goreportcard.com/badge/github.com/go-ffmt/ffmt)](https://goreportcard.com/report/github.com/go-ffmt/ffmt)
+[![GoDoc](https://godoc.org/github.com/go-ffmt/ffmt?status.svg)](https://godoc.org/github.com/go-ffmt/ffmt)
 [![GitHub license](https://img.shields.io/github/license/go-ffmt/ffmt.svg)](https://github.com/go-ffmt/ffmt/blob/master/LICENSE)
 [![cover.run](https://cover.run/go/github.com/go-ffmt/ffmt.svg?style=flat&tag=golang-1.10)](https://cover.run/go?tag=golang-1.10&repo=github.com%2Fgo-ffmt%2Fffmt)
 
@@ -21,7 +21,7 @@ go get -u -v github.com/go-ffmt/ffmt
 
 ## 用法
 
-[API 文档](https://godoc.org/gopkg.in/ffmt.v1)
+[API 文档](https://godoc.org/github.com/go-ffmt/ffmt)
 
 [示例](https://github.com/go-ffmt/ffmt/blob/master/examples/main.go)
 
@@ -29,7 +29,7 @@ go get -u -v github.com/go-ffmt/ffmt
 package main
 
 import (
-	ffmt "gopkg.in/ffmt.v1"
+	ffmt "github.com/go-ffmt/ffmt"
 )
 
 func main() {
