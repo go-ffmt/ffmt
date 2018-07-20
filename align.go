@@ -4,16 +4,16 @@ import (
 	"strings"
 )
 
-// 这就是一个二叉树
-type node struct {
-	child *node   // 子节点 左
-	next  *node   // 下节点 右
-	value builder // 数据
-	colon int     // 这是用冒号分割的数据 冒号的位置 用来对齐冒号后面的数据
+// align
+type align struct {
+	child *align
+	next  *align
+	value builder
+	colon int // This is the data separated by a colon. The position of the colon is used to align the data after the colon.
 }
 
-// 缩进空的括号
-func (n *node) lrPos() {
+// lrPos Indented empty brackets
+func (n *align) lrPos() {
 	b := n
 	for x := b; x != nil && x.next != nil; x = x.next {
 		if x.child != nil {
@@ -26,8 +26,8 @@ func (n *node) lrPos() {
 	}
 }
 
-// 对齐数组类型的数据
-func (n *node) tablePos() {
+// tablePos Aligning array type data
+func (n *align) tablePos() {
 	ms := []int{}
 	b := n
 	max := 0
@@ -51,8 +51,8 @@ func (n *node) tablePos() {
 	}
 }
 
-// 合并到下一节点
-func (n *node) merge(m int, ms []int) {
+// merge Merge to the next node
+func (n *align) merge(m int, ms []int) {
 	l := len(ms)
 	col := 0
 	for i := 0; i != m; i++ {
@@ -67,8 +67,8 @@ func (n *node) merge(m int, ms []int) {
 	}
 }
 
-// 合并到下一节点指定长度
-func (n *node) mergeNextSize(s int, ms []int) {
+// mergeNextSize Merge to the next node specified length
+func (n *align) mergeNextSize(s int, ms []int) {
 	lmax := make([]int, s)
 	for j := 0; j != s; j++ {
 		for i := 0; i*s < len(ms); i++ {
@@ -88,24 +88,24 @@ func (n *node) mergeNextSize(s int, ms []int) {
 	}
 }
 
-// 空格 写入缓冲
-func (n *node) spac(i int) {
+// spac
+func (n *align) spac(i int) {
 	for k := 0; k < i; k++ {
 		n.value.WriteByte(Space)
 	}
 	return
 }
 
-// 合并下一个节点到当前节点
-func (n *node) mergeNext(max int) {
+// mergeNext Merge the next node to the current node
+func (n *align) mergeNext(max int) {
 	n.spac(max - strLen(n.value.String()))
 	n.value.WriteString(n.next.value.String())
 	putBuilder(n.next.value)
 	n.next = n.next.next
 }
 
-// 对齐冒号后面的数据
-func (n *node) colonPos() {
+// Align the data after the colon
+func (n *align) colonPos() {
 	b := n
 	for b != nil {
 		m := 0
@@ -140,7 +140,7 @@ func (n *node) colonPos() {
 	return
 }
 
-func (n *node) put() {
+func (n *align) put() {
 	if n.value != nil {
 		putBuilder(n.value)
 		n.value = nil
@@ -154,7 +154,7 @@ func (n *node) put() {
 	return
 }
 
-func (n *node) String() string {
+func (n *align) String() string {
 	buf := getBuilder()
 	defer putBuilder(buf)
 	n.strings(0, buf)
@@ -165,7 +165,7 @@ func (n *node) String() string {
 	return ""
 }
 
-func (n *node) strings(d int, buf builder) {
+func (n *align) strings(d int, buf builder) {
 	buf.WriteString(spacing(d))
 	buf.WriteString(n.value.String())
 	if n.child != nil {
@@ -177,20 +177,20 @@ func (n *node) strings(d int, buf builder) {
 	return
 }
 
-func (n *node) toChild() (e *node) {
+func (n *align) toChild() (e *align) {
 	if n.child == nil {
 		buf := getBuilder()
-		n.child = &node{
+		n.child = &align{
 			value: buf,
 		}
 	}
 	return n.child
 }
 
-func (n *node) toNext() (e *node) {
+func (n *align) toNext() (e *align) {
 	if n.next == nil {
 		buf := getBuilder()
-		n.next = &node{
+		n.next = &align{
 			value: buf,
 		}
 	}
@@ -210,14 +210,14 @@ func getDepth(a string) int {
 	return 0
 }
 
-func stringToNode(a string) *node {
+func stringToNode(a string) *align {
 	ss := strings.Split(a, "\n")
 	depth := 0
-	o := &node{}
+	o := &align{}
 	x := o
 	buf := getBuilder()
 	x.value = buf
-	st := []*node{}
+	st := []*align{}
 	for i := 0; i != len(ss); i++ {
 		b := ss[i]
 		d := getDepth(b)
@@ -234,9 +234,9 @@ func stringToNode(a string) *node {
 				x = st[len(st)-1]
 				if x != nil {
 					st = st[:len(st)-1]
-					x.child.colonPos() // 冒号后对其
-					x.child.tablePos() // 数组对其
-					x.child.lrPos()    // 空括号合并
+					x.child.colonPos()
+					x.child.tablePos()
+					x.child.lrPos()
 					x = x.toNext()
 				}
 			}
