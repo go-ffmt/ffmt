@@ -337,12 +337,24 @@ func (s *format) getString(v reflect.Value) bool {
 
 // 获得默认字符串
 func getString(v reflect.Value) string {
+
+	if v.Kind() == reflect.Interface {
+		if v.IsNil() {
+			return ""
+		}
+		return getString(v.Elem())
+	}
+
+	if !v.CanInterface() {
+		return ""
+	}
+
 	i := v.Interface()
 
-	if e, b := i.(fmt.Stringer); b {
+	if e, b := i.(fmt.Stringer); b && e != nil {
 		return e.String()
 	}
-	if e, b := i.(fmt.GoStringer); b {
+	if e, b := i.(fmt.GoStringer); b && e != nil {
 		return e.GoString()
 	}
 	return ""
