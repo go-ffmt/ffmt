@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-func TestTable(t *testing.T) {
+func TestTable1(t *testing.T) {
 	b := []struct {
 		Na string
 		Ba string
@@ -13,6 +13,26 @@ func TestTable(t *testing.T) {
 		{"1111", "123123"},
 		{"1", "1231233231"},
 		{"aaaa", "1231231"},
+	}
+
+	out := `Na    Ba         
+1111  123123     
+1     1231233231 
+aaaa  1231231    
+aaa3a            `
+
+	if strings.Join(FmtTable(ToTable(b[0], b[0], b[1], b[2], map[string]string{
+		"Na": "aaa3a",
+	})), "\n") != out {
+		t.Fail()
+	}
+}
+
+func TestTable2(t *testing.T) {
+	b := []map[string]interface{}{
+		{"Na": "1111", "Ba": "123123"},
+		{"Na": "1", "Ba": "1231233231"},
+		{"Na": "aaaa", "Ba": "1231231"},
 	}
 
 	out := `Na    Ba         
