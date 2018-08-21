@@ -19,12 +19,13 @@ func TestTable1(t *testing.T) {
 1111  123123     
 1     1231233231 
 aaaa  1231231    
-aaa3a            `
+aaa3a`
 
-	if strings.Join(FmtTable(ToTable(b[0], b[0], b[1], b[2], map[string]string{
+	resu := strings.TrimSpace(strings.Join(FmtTable(ToTable(b[0], b[0], b[1], b[2], map[string]string{
 		"Na": "aaa3a",
-	})), "\n") != out {
-		t.Fail()
+	})), "\n"))
+	if resu != out {
+		t.Fatal(resu)
 	}
 }
 
@@ -39,16 +40,17 @@ func TestTable2(t *testing.T) {
 1111  123123     
 1     1231233231 
 aaaa  1231231    
-aaa3a            `
+aaa3a`
 
-	if strings.Join(FmtTable(ToTable(b[0], b[0], b[1], b[2], map[string]string{
+	resu := strings.TrimSpace(strings.Join(FmtTable(ToTable(b[0], b[0], b[1], b[2], map[string]string{
 		"Na": "aaa3a",
-	})), "\n") != out {
-		t.Fail()
+	})), "\n"))
+	if resu != out {
+		t.Fatal(resu)
 	}
 }
 
-func TestTableText(t *testing.T) {
+func TestTableText1(t *testing.T) {
 	tableData := [][2]string{
 		{`
 A AA
@@ -60,8 +62,30 @@ BBBB  B
 	}
 
 	for _, v := range tableData {
-		if strings.TrimSpace(TableText(v[0], "", " ")) != strings.TrimSpace(v[1]) {
-			t.Fail()
+		resu := strings.TrimSpace(TableText(v[0], "", " "))
+		if resu != strings.TrimSpace(v[1]) {
+			t.Fatal(resu)
+		}
+	}
+}
+
+func TestTableText2(t *testing.T) {
+	tableData := [][2]string{
+		{`
+// A AA
+// BBBB B
+CC CC
+`, `
+//  A     AA 
+//  BBBB  B  
+CC CC
+`},
+	}
+
+	for _, v := range tableData {
+		resu := strings.TrimSpace(TableText(v[0], "//", " "))
+		if resu != strings.TrimSpace(v[1]) {
+			t.Fatal(resu)
 		}
 	}
 }
