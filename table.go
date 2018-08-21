@@ -108,7 +108,7 @@ func TableText(b string, prefix, split string) string {
 			if i == 0 {
 				row = append(row, strings.TrimRightFunc(col, unicode.IsSpace))
 			} else {
-				row = append(row, strings.TrimSpace(col))
+				row = append(row, strings.TrimFunc(col, unicode.IsSpace))
 			}
 			if i != len(ss)-1 {
 				row[i] = row[i] + split
