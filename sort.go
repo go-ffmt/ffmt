@@ -41,5 +41,4 @@ func (p valueSlice) Swap(i, j int) {
 
 func (p valueSlice) Sort() {
 	sort.Sort(p)
-
 }

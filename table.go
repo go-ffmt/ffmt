@@ -11,9 +11,7 @@ import (
 func ToTable(t interface{}, is ...interface{}) [][]string {
 	r := make([][]string, len(is)+1)
 	val := reflect.ValueOf(t)
-	for val.Kind() == reflect.Ptr || val.Kind() == reflect.Interface {
-		val = val.Elem()
-	}
+	val = reflect.Indirect(val)
 	typ := val.Type()
 	switch val.Kind() {
 	case reflect.Struct:
@@ -22,8 +20,12 @@ func ToTable(t interface{}, is ...interface{}) [][]string {
 		}
 	case reflect.Map:
 		ks := val.MapKeys()
+		valueSlice(ks).Sort()
 		for i := 0; i != len(ks); i++ {
 			m := ks[i]
+			if m.Kind() == reflect.Ptr || m.Kind() == reflect.Interface {
+				m = m.Elem()
+			}
 			if m.CanInterface() {
 				r[0] = append(r[0], fmt.Sprint(m.Interface()))
 			}
