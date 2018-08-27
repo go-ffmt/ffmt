@@ -1,6 +1,7 @@
 package ffmt
 
 import (
+	"bytes"
 	"fmt"
 	"sync"
 )
@@ -28,4 +29,8 @@ func getBuilder() builder {
 func putBuilder(buf builder) {
 	buf.Reset()
 	poolBuilder.Put(buf)
+}
+
+func newBuilder() interface{} {
+	return bytes.NewBuffer(nil)
 }
