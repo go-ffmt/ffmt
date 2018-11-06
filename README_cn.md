@@ -151,6 +151,14 @@ func example() {
 	/*
 		main.go:124  hello
 	*/
+
+	ffmt.Print(ffmt.BytesViewer("Hello world! Hello All!"))
+	/*
+		| Address  | Hex                                             | Text             |
+		| -------: | :---------------------------------------------- | :--------------- |
+		| 00000000 | 48 65 6c 6c 6f 20 77 6f 72 6c 64 21 20 48 65 6c | Hello world! Hel |
+		| 00000010 | 6c 6f 20 41 6c 6c 21                            | lo All!          |
+	*/
 }
 ```
 
