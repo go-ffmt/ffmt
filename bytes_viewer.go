@@ -14,7 +14,8 @@ func (b BytesViewer) String() string {
 	if len(b) == 0 {
 		return invalid
 	}
-	const head = `| Address  | Hex                                             | Text             |
+	const head = `
+| Address  | Hex                                             | Text             |
 | -------: | :---------------------------------------------- | :--------------- |
 `
 	const row = 16
