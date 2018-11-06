@@ -3,13 +3,14 @@ package ffmt
 import (
 	"encoding/json"
 	"fmt"
-	"go/ast"
 	"reflect"
 	"strings"
+	"unicode"
+	"unicode/utf8"
 )
 
 const (
-	invalidJson = "null"
+	invalidJSON = "null"
 	invalid     = "<nil>"
 	private     = "<private>"
 )
@@ -104,7 +105,7 @@ func (s *format) switchType(v reflect.Value, depth int) {
 	return
 }
 
-// 换行 写入缓冲
+// depthBuf write buffer with depth
 func (s *format) depthBuf(i int) {
 	s.buf.WriteByte('\n')
 	for k := 0; k < i; k++ {
@@ -113,18 +114,18 @@ func (s *format) depthBuf(i int) {
 	return
 }
 
-// 空数据 写入缓冲
+// nilBuf write buffer with nil
 func (s *format) nilBuf() {
 	switch s.style {
 	case StylePjson:
-		s.buf.WriteString(invalidJson)
+		s.buf.WriteString(invalidJSON)
 	default:
 		s.buf.WriteString(invalid)
 	}
 	return
 }
 
-// 默认格式化 写入缓冲
+// defaultBuf write buffer with default string
 func (s *format) defaultBuf(v reflect.Value) {
 	switch s.style {
 	case StyleP:
@@ -141,7 +142,7 @@ func (s *format) defaultBuf(v reflect.Value) {
 	return
 }
 
-// string格式化 写入缓冲
+// stringBuf write buffer with string
 func (s *format) stringBuf(v reflect.Value) {
 	switch s.style {
 	case StyleP:
@@ -156,7 +157,7 @@ func (s *format) stringBuf(v reflect.Value) {
 	return
 }
 
-// func格式化 写入缓冲
+// funcBuf write buffer with func address
 func (s *format) funcBuf(v reflect.Value) {
 	switch s.style {
 	case StylePjson:
@@ -194,7 +195,7 @@ func (s *format) funcBuf(v reflect.Value) {
 	return
 }
 
-// 16进制类型格式化 写入缓冲
+// xxBuf write buffer with hex format
 func (s *format) xxBuf(v reflect.Value, i interface{}) {
 	switch s.style {
 	case StylePjson:
@@ -209,8 +210,7 @@ func (s *format) xxBuf(v reflect.Value, i interface{}) {
 	return
 }
 
-// struct格式化 写入缓冲
-// json风格 不走这里
+// structBuf write buffer with struct
 func (s *format) structBuf(v reflect.Value, depth int) {
 	s.nameBuf(v)
 	s.buf.WriteByte('{')
@@ -232,7 +232,7 @@ func (s *format) structBuf(v reflect.Value, depth int) {
 	return
 }
 
-// map格式化 写入缓冲
+// mapBuf write buffer with map
 func (s *format) mapBuf(v reflect.Value, depth int) {
 	mk := v.MapKeys()
 	valueSlice(mk).Sort()
@@ -260,7 +260,7 @@ func (s *format) mapBuf(v reflect.Value, depth int) {
 	return
 }
 
-// slice格式化 写入缓冲
+// sliceBuf write buffer with slice
 func (s *format) sliceBuf(v reflect.Value, depth int) {
 	s.nameBuf(v)
 	s.buf.WriteByte('[')
@@ -283,7 +283,7 @@ func (s *format) sliceBuf(v reflect.Value, depth int) {
 	return
 }
 
-// 获得类型名 写入缓冲
+// nameBuf write buffer with type name
 func (s *format) nameBuf(v reflect.Value) {
 	switch s.style {
 	case StyleP:
@@ -302,8 +302,8 @@ func (s *format) nameBuf(v reflect.Value) {
 	return
 }
 
-// 获得默认字符串 写入缓冲
-// 如果成功则true
+// getString write buffer with default string
+// returns true if can't default string
 func (s *format) getString(v reflect.Value) bool {
 	if !s.opt.IsCanDefaultString() {
 		return false
@@ -335,7 +335,7 @@ func (s *format) getString(v reflect.Value) bool {
 	return true
 }
 
-// 获得默认字符串
+// getString return default string
 func getString(v reflect.Value) string {
 
 	if v.Kind() == reflect.Interface {
@@ -360,12 +360,13 @@ func getString(v reflect.Value) string {
 	return ""
 }
 
-// 判断是私有名
-func isPrivateName(n string) bool {
-	return !ast.IsExported(n)
+// isPrivateName returns it is a private name
+func isPrivateName(name string) bool {
+	ch, _ := utf8.DecodeRuneInString(name)
+	return !unicode.IsUpper(ch)
 }
 
-// struct转map
+// struct2Map returns map from struct
 func struct2Map(v reflect.Value) map[string]interface{} {
 	t := v.Type()
 	data := map[string]interface{}{}
