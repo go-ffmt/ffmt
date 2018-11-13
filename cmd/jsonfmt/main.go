@@ -5,52 +5,62 @@ import (
 	"flag"
 	"fmt"
 	"io/ioutil"
+	"os"
 
 	"gopkg.in/ffmt.v1"
 )
 
 var (
-	file = flag.String("f", "", "json file")
-	out  = flag.String("o", "", "out file")
+	w = flag.Bool("w", false, "Write the changes to the file")
 )
 
 func init() {
+	flag.Usage = func() {
+		w := os.Stdout
+		fmt.Fprintf(w, "jsonfmt:\n")
+		fmt.Fprintf(w, "Usage:\n")
+		fmt.Fprintf(w, "    %s [Options] file1 [filen ...]\n", os.Args[0])
+		fmt.Fprintf(w, "Options:\n")
+		flag.PrintDefaults()
+	}
 	flag.Parse()
 }
 
 func main() {
-	if *file == "" {
-		flag.PrintDefaults()
+	args := flag.Args()
+	if len(args) == 0 {
+		flag.Usage()
 		return
 	}
-	b, err := ioutil.ReadFile(*file)
+	for _, file := range args {
+		err := format(file, *w)
+		if err != nil {
+			fmt.Println(err)
+			flag.Usage()
+			return
+		}
+	}
+}
+
+func format(file string, w bool) error {
+	b, err := ioutil.ReadFile(file)
 	if err != nil {
-		fmt.Println(err)
-		flag.PrintDefaults()
-		return
+		return err
 	}
 	var i interface{}
 	err = json.Unmarshal(b, &i)
 	if err != nil {
-		fmt.Println(err)
-		flag.PrintDefaults()
-		return
+		return err
 	}
 	ret := ffmt.Spjson(i)
-	if *out == "" {
+	if !w {
 		fmt.Print(ret)
-		return
+		return nil
 	}
 
-	if *out != "" {
-		err = ioutil.WriteFile(*out, []byte(ret), 0666)
-		if err != nil {
-			fmt.Println(err)
-			flag.PrintDefaults()
-			return
-		}
-	} else {
-		fmt.Print(ret)
+	err = ioutil.WriteFile(file, []byte(ret), 0666)
+	if err != nil {
+		return err
 	}
-	return
+	return nil
 }

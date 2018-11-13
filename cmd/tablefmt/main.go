@@ -4,44 +4,60 @@ import (
 	"flag"
 	"fmt"
 	"io/ioutil"
+	"os"
 
 	ffmt "gopkg.in/ffmt.v1"
 )
 
 var (
-	file   = flag.String("f", "", "json file")
-	out    = flag.String("o", "", "out file")
-	prefix = flag.String("p", "//", "prefix")
+	w      = flag.Bool("w", false, "Write the changes to the file")
+	prefix = flag.String("p", "//", "Prefix")
 	split  = flag.String("s", ",", "Split rune")
 )
 
 func init() {
+	flag.Usage = func() {
+		w := os.Stdout
+		fmt.Fprintf(w, "tablefmt:\n")
+		fmt.Fprintf(w, "Usage:\n")
+		fmt.Fprintf(w, "    %s [Options] file1 [filen ...]\n", os.Args[0])
+		fmt.Fprintf(w, "Options:\n")
+		flag.PrintDefaults()
+	}
 	flag.Parse()
 }
 
 func main() {
-	if *file == "" {
-		flag.PrintDefaults()
+	args := flag.Args()
+	if len(args) == 0 {
+		flag.Usage()
 		return
 	}
-	b, err := ioutil.ReadFile(*file)
-	if err != nil {
-		fmt.Println(err)
-		flag.PrintDefaults()
-		return
-	}
-
-	ret := ffmt.TableText(string(b), *prefix, *split)
-
-	if *out != "" {
-		err = ioutil.WriteFile(*out, []byte(ret), 0666)
+	for _, file := range args {
+		err := format(file, *prefix, *split, *w)
 		if err != nil {
 			fmt.Println(err)
-			flag.PrintDefaults()
+			flag.Usage()
 			return
 		}
-	} else {
-		fmt.Print(ret)
 	}
-	return
+}
+
+func format(file string, prefix, split string, w bool) error {
+	b, err := ioutil.ReadFile(file)
+	if err != nil {
+		return err
+	}
+
+	ret := ffmt.TableText(string(b), prefix, split)
+	if !w {
+		fmt.Print(ret)
+		return nil
+	}
+
+	err = ioutil.WriteFile(file, []byte(ret), 0666)
+	if err != nil {
+		return err
+	}
+	return nil
 }
