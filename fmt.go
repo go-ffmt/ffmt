@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"reflect"
-	"strings"
+	"strconv"
 	"unicode"
 	"unicode/utf8"
 )
@@ -148,9 +148,7 @@ func (s *format) stringBuf(v reflect.Value) {
 	case StyleP:
 		s.defaultBuf(v)
 	case StylePuts, StylePjson:
-		s.buf.WriteByte('"')
-		s.buf.WriteString(strings.Replace(v.String(), `"`, `\"`, -1))
-		s.buf.WriteByte('"')
+		s.buf.WriteString(strconv.Quote(v.String()))
 	default:
 		s.buf.WriteString(v.String())
 	}
