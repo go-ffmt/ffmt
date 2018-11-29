@@ -127,9 +127,9 @@ func (s *format) nilBuf() {
 
 // defaultBuf write buffer with default string
 func (s *format) defaultBuf(v reflect.Value) {
+	s.nameBuf(v.Type())
 	switch s.style {
 	case StyleP:
-		s.nameBuf(v)
 		s.buf.WriteByte('(')
 		fmt.Fprintf(s.buf, "%#v", v.Interface())
 		s.buf.WriteByte(')')
@@ -203,14 +203,14 @@ func (s *format) xxBuf(v reflect.Value, i interface{}) {
 		s.buf.WriteByte('<')
 		defer s.buf.WriteByte('>')
 	}
-	s.nameBuf(v)
+	s.nameBuf(v.Type())
 	fmt.Fprintf(s.buf, "(0x%020x)", i)
 	return
 }
 
 // structBuf write buffer with struct
 func (s *format) structBuf(v reflect.Value, depth int) {
-	s.nameBuf(v)
+	s.nameBuf(v.Type())
 	s.buf.WriteByte('{')
 	t := v.Type()
 	for i := 0; i != t.NumField(); i++ {
@@ -234,7 +234,7 @@ func (s *format) structBuf(v reflect.Value, depth int) {
 func (s *format) mapBuf(v reflect.Value, depth int) {
 	mk := v.MapKeys()
 	valueSlice(mk).Sort()
-	s.nameBuf(v)
+	s.nameBuf(v.Type())
 	s.buf.WriteByte('{')
 	for i := 0; i != len(mk); i++ {
 		k := mk[i]
@@ -260,7 +260,7 @@ func (s *format) mapBuf(v reflect.Value, depth int) {
 
 // sliceBuf write buffer with slice
 func (s *format) sliceBuf(v reflect.Value, depth int) {
-	s.nameBuf(v)
+	s.nameBuf(v.Type())
 	s.buf.WriteByte('[')
 	for i := 0; i != v.Len(); i++ {
 		switch s.style {
@@ -282,22 +282,41 @@ func (s *format) sliceBuf(v reflect.Value, depth int) {
 }
 
 // nameBuf write buffer with type name
-func (s *format) nameBuf(v reflect.Value) {
+func (s *format) nameBuf(t reflect.Type) bool {
 	switch s.style {
 	case StyleP:
-		t := v.Type()
-		if t.PkgPath() != "" {
-			s.buf.WriteString(t.PkgPath())
-			s.buf.WriteByte('.')
-		}
+		switch t.Kind() {
+		case reflect.Map:
+			s.buf.WriteString("map[")
+			s.nameBuf(t.Key())
+			s.buf.WriteByte(']')
+			return s.nameBuf(t.Elem())
+		case reflect.Slice:
+			s.buf.WriteString("[]")
+			return s.nameBuf(t.Elem())
+		case reflect.Array:
+			s.buf.WriteByte('[')
+			s.buf.WriteString(strconv.FormatInt(int64(t.Len()), 10))
+			s.buf.WriteByte(']')
+			return s.nameBuf(t.Elem())
+		case reflect.Ptr:
+			s.buf.WriteByte('*')
+			return s.nameBuf(t.Elem())
+		default:
+			if pkg := t.PkgPath(); pkg != "" {
+				s.buf.WriteString(pkg)
+				s.buf.WriteByte('.')
+			}
 
-		if t.Name() != "" {
-			s.buf.WriteString(t.Name())
-		} else {
-			s.buf.WriteString(t.String())
+			if t.Name() != "" {
+				s.buf.WriteString(t.Name())
+			} else {
+				s.buf.WriteString(t.String())
+			}
+			return true
 		}
 	}
-	return
+	return false
 }
 
 // getString write buffer with default string
