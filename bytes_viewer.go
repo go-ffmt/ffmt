@@ -1,8 +1,10 @@
 package ffmt
 
 import (
+	"bytes"
 	"fmt"
 	"strconv"
+	"unicode"
 	"unsafe"
 )
 
@@ -33,6 +35,9 @@ func (b BytesViewer) String() string {
 			k = len(b)
 		}
 		for j := i; j != k; j++ {
+			if b[j] < 16 {
+				result = append(result, '0')
+			}
 			result = strconv.AppendUint(result, uint64(b[j]), 16)
 			result = append(result, ' ')
 		}
@@ -40,7 +45,13 @@ func (b BytesViewer) String() string {
 			result = append(result, "   "...)
 		}
 		result = append(result, "| "...)
-		result = append(result, b[i:k]...)
+		buf := bytes.Map(func(r rune) rune {
+			if unicode.IsSpace(r) {
+				return ' '
+			}
+			return r
+		}, b[i:k])
+		result = append(result, buf...)
 		for j := 0; j != more; j++ {
 			result = append(result, ' ')
 		}
