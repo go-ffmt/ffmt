@@ -5,7 +5,6 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
-	"strings"
 )
 
 // MarkStackFull Output stack full
@@ -34,26 +33,12 @@ func Smark(a ...interface{}) string {
 	return SmarkStack(1, a...)
 }
 
-var curDir = getCurrentDirectory()
-var isTest = isTestd()
+var curDir, _ = os.Getwd()
 
-func isTestd() bool {
-	return strings.Index(curDir, os.TempDir()) == 0
-}
-
-func getCurrentDirectory() string {
-	dir, _ := filepath.Abs(filepath.Dir(os.Args[0]))
-	return dir
-}
-
-func getRelativeDirectory(basepath, targpath string) string {
+func getRelativeDirectory(targpath string) string {
 	targpath = filepath.Clean(targpath)
-	if isTest && strings.Index(targpath, runtime.GOROOT()) != 0 {
-		return filepath.Base(targpath)
-	}
 
-	fileName, _ := filepath.Rel(basepath, targpath)
-	if len(fileName) < len(targpath) {
+	if fileName, err := filepath.Rel(curDir, targpath); err == nil && len(fileName) <= len(targpath) {
 		targpath = fileName
 	}
 
@@ -66,7 +51,7 @@ func SmarkStack(skip int, a ...interface{}) string {
 	if !ok {
 		return ""
 	}
-	fileName = getRelativeDirectory(curDir, fileName)
+	fileName = getRelativeDirectory(fileName)
 	return fmt.Sprintf("%s:%d %s", fileName, line, fmt.Sprint(a...))
 }
 
@@ -78,6 +63,6 @@ func SmarkStackFunc(skip int, a ...interface{}) string {
 	}
 	funcName := runtime.FuncForPC(pc).Name()
 	funcName = filepath.Base(funcName)
-	fileName = getRelativeDirectory(curDir, fileName)
+	fileName = getRelativeDirectory(fileName)
 	return fmt.Sprintf("%s:%d %s %s", fileName, line, funcName, fmt.Sprint(a...))
 }
