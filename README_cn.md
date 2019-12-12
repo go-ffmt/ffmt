@@ -4,7 +4,7 @@
 [![Go Report Card](https://goreportcard.com/badge/github.com/go-ffmt/ffmt)](https://goreportcard.com/report/github.com/go-ffmt/ffmt)
 [![GoDoc](https://godoc.org/github.com/go-ffmt/ffmt?status.svg)](https://godoc.org/github.com/go-ffmt/ffmt)
 [![GitHub license](https://img.shields.io/github/license/go-ffmt/ffmt.svg)](https://github.com/go-ffmt/ffmt/blob/master/LICENSE)
-[![cover.run](https://cover.run/go/gopkg.in/ffmt.v1.svg?style=flat&tag=golang-1.10)](https://cover.run/go?tag=golang-1.10&repo=gopkg.in%2Fffmt.v1)
+[![gocover.io](https://gocover.io/_badge/github.com/go-ffmt/ffmt)](https://gocover.io/github.com/go-ffmt/ffmt)
 
 - [English](https://github.com/go-ffmt/ffmt/blob/master/README.md)
 - [简体中文](https://github.com/go-ffmt/ffmt/blob/master/README_cn.md)
@@ -154,10 +154,10 @@ func example() {
 
 	ffmt.Print(ffmt.BytesViewer("Hello world! Hello All!"))
 	/*
-		| Address  | Hex                                             | Text             |
-		| -------: | :---------------------------------------------- | :--------------- |
-		| 00000000 | 48 65 6c 6c 6f 20 77 6f 72 6c 64 21 20 48 65 6c | Hello world! Hel |
-		| 00000010 | 6c 6f 20 41 6c 6c 21                            | lo All!          |
+  |  Address | Hex                                             | Text             |
+  | -------: | :---------------------------------------------- | :--------------- |
+  | 00000000 | 48 65 6c 6c 6f 20 77 6f 72 6c 64 21 20 48 65 6c | Hello world! Hel |
+  | 00000010 | 6c 6f 20 41 6c 6c 21                            | lo All!          |
 	*/
 }
 ```
