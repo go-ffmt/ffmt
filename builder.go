@@ -3,17 +3,16 @@ package ffmt
 import (
 	"bytes"
 	"fmt"
+	"io"
 	"sync"
 )
 
 type builder interface {
 	fmt.Stringer
-	Write([]byte) (int, error)       // io.Writer
-	WriteString(string) (int, error) // io.writeString
-	WriteByte(byte) error            // io.ByteWriter
-	WriteRune(rune) (int, error)
+	io.Writer
+	io.StringWriter
+	io.ByteWriter
 	Reset()
-	Grow(int)
 	Len() int
 }
 
@@ -32,5 +31,6 @@ func putBuilder(buf builder) {
 }
 
 func newBuilder() interface{} {
-	return bytes.NewBuffer(nil)
+	const malloc = 1024
+	return bytes.NewBuffer(make([]byte, 0, malloc))
 }

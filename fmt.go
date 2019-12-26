@@ -21,6 +21,22 @@ type format struct {
 	filter map[uintptr]bool
 }
 
+func (s *format) write(b []byte) {
+	s.buf.Write(b)
+}
+
+func (s *format) writeByte(b byte) {
+	s.buf.WriteByte(b)
+}
+
+func (s *format) writeString(str string) {
+	s.buf.WriteString(str)
+}
+
+func (s *format) writeFormat(format string, a ...interface{}) {
+	fmt.Fprintf(s.buf, format, a...)
+}
+
 func (s *format) fmt(va reflect.Value, depth int) {
 	if !va.IsValid() {
 		s.nilBuf()
@@ -59,7 +75,7 @@ func (s *format) fmt(va reflect.Value, depth int) {
 		switch s.style {
 		case StylePjson:
 		default:
-			s.buf.WriteByte('&')
+			s.writeByte('&')
 		}
 		if s.getString(va) {
 			return
@@ -107,9 +123,9 @@ func (s *format) switchType(v reflect.Value, depth int) {
 
 // depthBuf write buffer with depth
 func (s *format) depthBuf(i int) {
-	s.buf.WriteByte('\n')
+	s.writeByte('\n')
 	for k := 0; k < i; k++ {
-		s.buf.WriteByte(Space)
+		s.writeByte(Space)
 	}
 	return
 }
@@ -118,9 +134,9 @@ func (s *format) depthBuf(i int) {
 func (s *format) nilBuf() {
 	switch s.style {
 	case StylePjson:
-		s.buf.WriteString(invalidJSON)
+		s.writeString(invalidJSON)
 	default:
-		s.buf.WriteString(invalid)
+		s.writeString(invalid)
 	}
 	return
 }
@@ -130,14 +146,14 @@ func (s *format) defaultBuf(v reflect.Value) {
 	s.nameBuf(v.Type())
 	switch s.style {
 	case StyleP:
-		s.buf.WriteByte('(')
-		fmt.Fprintf(s.buf, "%#v", v.Interface())
-		s.buf.WriteByte(')')
+		s.writeByte('(')
+		s.writeFormat("%#v", v.Interface())
+		s.writeByte(')')
 	case StylePjson:
 		d, _ := json.Marshal(v.Interface())
-		s.buf.Write(d)
+		s.write(d)
 	default:
-		fmt.Fprintf(s.buf, "%+v", v.Interface())
+		s.writeFormat("%+v", v.Interface())
 	}
 	return
 }
@@ -148,9 +164,9 @@ func (s *format) stringBuf(v reflect.Value) {
 	case StyleP:
 		s.defaultBuf(v)
 	case StylePuts, StylePjson:
-		s.buf.WriteString(strconv.Quote(v.String()))
+		s.writeString(strconv.Quote(v.String()))
 	default:
-		s.buf.WriteString(v.String())
+		s.writeString(v.String())
 	}
 	return
 }
@@ -159,37 +175,37 @@ func (s *format) stringBuf(v reflect.Value) {
 func (s *format) funcBuf(v reflect.Value) {
 	switch s.style {
 	case StylePjson:
-		s.buf.WriteByte('"')
-		defer s.buf.WriteByte('"')
+		s.writeByte('"')
+		defer s.writeByte('"')
 	case StyleP:
-		s.buf.WriteByte('<')
-		defer s.buf.WriteByte('>')
+		s.writeByte('<')
+		defer s.writeByte('>')
 	}
-	s.buf.WriteString("func(")
+	s.writeString("func(")
 	t := v.Type()
 	if t.NumIn() != 0 {
 		for i := 0; ; {
-			s.buf.WriteString(t.In(i).String())
+			s.writeString(t.In(i).String())
 			i++
 			if i == t.NumIn() {
 				break
 			}
-			s.buf.WriteByte(',')
+			s.writeByte(',')
 		}
 	}
-	s.buf.WriteString(")(")
+	s.writeString(")(")
 	if t.NumOut() != 0 {
 		for i := 0; ; {
-			s.buf.WriteString(t.Out(i).String())
+			s.writeString(t.Out(i).String())
 			i++
 			if i == t.NumOut() {
 				break
 			}
-			s.buf.WriteByte(',')
+			s.writeByte(',')
 		}
 	}
-	s.buf.WriteByte(')')
-	fmt.Fprintf(s.buf, "(0x%020x)", v.Pointer())
+	s.writeByte(')')
+	s.writeFormat("(0x%020x)", v.Pointer())
 	return
 }
 
@@ -197,36 +213,36 @@ func (s *format) funcBuf(v reflect.Value) {
 func (s *format) xxBuf(v reflect.Value, i interface{}) {
 	switch s.style {
 	case StylePjson:
-		s.buf.WriteByte('"')
-		defer s.buf.WriteByte('"')
+		s.writeByte('"')
+		defer s.writeByte('"')
 	case StyleP:
-		s.buf.WriteByte('<')
-		defer s.buf.WriteByte('>')
+		s.writeByte('<')
+		defer s.writeByte('>')
 	}
 	s.nameBuf(v.Type())
-	fmt.Fprintf(s.buf, "(0x%020x)", i)
+	s.writeFormat("(0x%020x)", i)
 	return
 }
 
 // structBuf write buffer with struct
 func (s *format) structBuf(v reflect.Value, depth int) {
 	s.nameBuf(v.Type())
-	s.buf.WriteByte('{')
+	s.writeByte('{')
 	t := v.Type()
 	for i := 0; i != t.NumField(); i++ {
 		f := t.Field(i)
 		v0 := v.Field(i)
 		s.depthBuf(depth + 1)
-		s.buf.WriteString(f.Name)
-		s.buf.WriteString(colSym)
+		s.writeString(f.Name)
+		s.writeString(colSym)
 		if isPrivateName(f.Name) {
-			s.buf.WriteString(private)
+			s.writeString(private)
 		} else {
 			s.fmt(v0, depth+1)
 		}
 	}
 	s.depthBuf(depth)
-	s.buf.WriteByte('}')
+	s.writeByte('}')
 	return
 }
 
@@ -235,14 +251,14 @@ func (s *format) mapBuf(v reflect.Value, depth int) {
 	mk := v.MapKeys()
 	valueSlice(mk).Sort()
 	s.nameBuf(v.Type())
-	s.buf.WriteByte('{')
+	s.writeByte('{')
 	for i := 0; i != len(mk); i++ {
 		k := mk[i]
 		switch s.style {
 		case StylePjson:
 			if i != 0 {
 				s.depthBuf(depth)
-				s.buf.WriteByte(',')
+				s.writeByte(',')
 			} else {
 				s.depthBuf(depth + 1)
 			}
@@ -250,24 +266,24 @@ func (s *format) mapBuf(v reflect.Value, depth int) {
 			s.depthBuf(depth + 1)
 		}
 		s.fmt(k, s.depth-1)
-		s.buf.WriteString(colSym)
+		s.writeString(colSym)
 		s.fmt(v.MapIndex(k), depth+1)
 	}
 	s.depthBuf(depth)
-	s.buf.WriteByte('}')
+	s.writeByte('}')
 	return
 }
 
 // sliceBuf write buffer with slice
 func (s *format) sliceBuf(v reflect.Value, depth int) {
 	s.nameBuf(v.Type())
-	s.buf.WriteByte('[')
+	s.writeByte('[')
 	for i := 0; i != v.Len(); i++ {
 		switch s.style {
 		case StylePjson:
 			if i != 0 {
 				s.depthBuf(depth)
-				s.buf.WriteByte(',')
+				s.writeByte(',')
 			} else {
 				s.depthBuf(depth + 1)
 			}
@@ -277,7 +293,7 @@ func (s *format) sliceBuf(v reflect.Value, depth int) {
 		s.fmt(v.Index(i), depth+1)
 	}
 	s.depthBuf(depth)
-	s.buf.WriteByte(']')
+	s.writeByte(']')
 	return
 }
 
@@ -287,31 +303,31 @@ func (s *format) nameBuf(t reflect.Type) bool {
 	case StyleP:
 		switch t.Kind() {
 		case reflect.Map:
-			s.buf.WriteString("map[")
+			s.writeString("map[")
 			s.nameBuf(t.Key())
-			s.buf.WriteByte(']')
+			s.writeByte(']')
 			return s.nameBuf(t.Elem())
 		case reflect.Slice:
-			s.buf.WriteString("[]")
+			s.writeString("[]")
 			return s.nameBuf(t.Elem())
 		case reflect.Array:
-			s.buf.WriteByte('[')
-			s.buf.WriteString(strconv.FormatInt(int64(t.Len()), 10))
-			s.buf.WriteByte(']')
+			s.writeByte('[')
+			s.writeString(strconv.FormatInt(int64(t.Len()), 10))
+			s.writeByte(']')
 			return s.nameBuf(t.Elem())
 		case reflect.Ptr:
-			s.buf.WriteByte('*')
+			s.writeByte('*')
 			return s.nameBuf(t.Elem())
 		default:
 			if pkg := t.PkgPath(); pkg != "" {
-				s.buf.WriteString(pkg)
-				s.buf.WriteByte('.')
+				s.writeString(pkg)
+				s.writeByte('.')
 			}
 
 			if t.Name() != "" {
-				s.buf.WriteString(t.Name())
+				s.writeString(t.Name())
 			} else {
-				s.buf.WriteString(t.String())
+				s.writeString(t.String())
 			}
 			return true
 		}
@@ -333,21 +349,21 @@ func (s *format) getString(v reflect.Value) bool {
 			return false
 		}
 		vv, _ := json.Marshal(v.Interface())
-		s.buf.Write(vv)
+		s.write(vv)
 	case StyleP:
 		r := getString(v)
 		if r == "" {
 			return false
 		}
-		s.buf.WriteByte('<')
-		s.buf.WriteString(r)
-		s.buf.WriteByte('>')
+		s.writeByte('<')
+		s.writeString(r)
+		s.writeByte('>')
 	default:
 		r := getString(v)
 		if r == "" {
 			return false
 		}
-		s.buf.WriteString(r)
+		s.writeString(r)
 	}
 	return true
 }
