@@ -2,16 +2,14 @@ package ffmt
 
 import (
 	"bytes"
-	"fmt"
-	"io"
 	"sync"
 )
 
 type builder interface {
-	fmt.Stringer
-	io.Writer
-	io.StringWriter
-	io.ByteWriter
+	String() string
+	Write([]byte) (int, error)       // io.Writer
+	WriteString(string) (int, error) // io.WriteString
+	WriteByte(byte) error            // io.ByteWriter
 	Reset()
 	Len() int
 }
