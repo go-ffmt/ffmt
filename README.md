@@ -2,26 +2,14 @@
 
 [![Build Status](https://travis-ci.org/go-ffmt/ffmt.svg?branch=master)](https://travis-ci.org/go-ffmt/ffmt)
 [![Go Report Card](https://goreportcard.com/badge/github.com/go-ffmt/ffmt)](https://goreportcard.com/report/github.com/go-ffmt/ffmt)
-[![GoDoc](https://godoc.org/github.com/go-ffmt/ffmt?status.svg)](https://godoc.org/github.com/go-ffmt/ffmt)
+[![GoDoc](https://pkg.go.dev/badge/github.com/gopkg.in/ffmt.v1)](https://pkg.go.dev/gopkg.in/ffmt.v1)
 [![GitHub license](https://img.shields.io/github/license/go-ffmt/ffmt.svg)](https://github.com/go-ffmt/ffmt/blob/master/LICENSE)
 [![gocover.io](https://gocover.io/_badge/github.com/go-ffmt/ffmt)](https://gocover.io/github.com/go-ffmt/ffmt)
 
 - [English](https://github.com/go-ffmt/ffmt/blob/master/README.md)
 - [简体中文](https://github.com/go-ffmt/ffmt/blob/master/README_cn.md)
 
-## Install
-
-``` shell
-# Stable version
-go get -u -v gopkg.in/ffmt.v1
-
-# Latest version
-go get -u -v github.com/go-ffmt/ffmt
-```
-
 ## Usage
-
-[API Documentation](https://godoc.org/github.com/go-ffmt/ffmt)
 
 [Examples](https://github.com/go-ffmt/ffmt/blob/master/examples/main.go)
 
@@ -29,7 +17,7 @@ go get -u -v github.com/go-ffmt/ffmt
 package main
 
 import (
-	ffmt "github.com/go-ffmt/ffmt"
+	ffmt "gopkg.in/ffmt.v1"
 )
 
 func main() {
@@ -166,4 +154,4 @@ func example() {
 
 ## License
 
-Pouch is licensed under the MIT License. See [LICENSE](https://github.com/go-ffmt/ffmt/blob/master/LICENSE) for the full license text.
+Licensed under the MIT License. See [LICENSE](https://github.com/go-ffmt/ffmt/blob/master/LICENSE) for the full license text.
