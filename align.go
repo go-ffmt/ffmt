@@ -93,7 +93,6 @@ func (n *align) spac(i int) {
 	for k := 0; k < i; k++ {
 		n.value.WriteByte(Space)
 	}
-	return
 }
 
 // mergeNext Merge the next node to the current node
@@ -137,7 +136,6 @@ func (n *align) colonPos() {
 			}
 		}
 	}
-	return
 }
 
 func (n *align) put() {
@@ -151,7 +149,6 @@ func (n *align) put() {
 	if n.next != nil {
 		n.next.put()
 	}
-	return
 }
 
 func (n *align) String() string {
@@ -174,7 +171,6 @@ func (n *align) strings(d int, buf builder) {
 	if x := n.next; x != nil {
 		x.strings(d, buf)
 	}
-	return
 }
 
 func (n *align) toChild() (e *align) {
