@@ -1,6 +1,5 @@
 # Golang beautify data display for Humans
 
-[![Build Status](https://travis-ci.org/go-ffmt/ffmt.svg?branch=master)](https://travis-ci.org/go-ffmt/ffmt)
 [![Go Report Card](https://goreportcard.com/badge/github.com/go-ffmt/ffmt)](https://goreportcard.com/report/github.com/go-ffmt/ffmt)
 [![GoDoc](https://pkg.go.dev/badge/github.com/gopkg.in/ffmt.v1)](https://pkg.go.dev/gopkg.in/ffmt.v1)
 [![GitHub license](https://img.shields.io/github/license/go-ffmt/ffmt.svg)](https://github.com/go-ffmt/ffmt/blob/master/LICENSE)
