@@ -50,6 +50,14 @@ func spac(depth int) string {
 	return string(b)
 }
 
+var space = map[int]string{}
+
 func spacing(depth int) string {
-	return "\n" + spac(depth-1)
+	v, ok := space[depth]
+	if ok {
+		return v
+	}
+	v = "\n" + spac(depth-1)
+	space[depth] = v
+	return v
 }
