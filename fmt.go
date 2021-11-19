@@ -82,7 +82,6 @@ func (s *format) fmt(va reflect.Value, depth int) {
 		}
 	}
 	s.switchType(v, depth)
-	return
 }
 
 func (s *format) switchType(v reflect.Value, depth int) {
@@ -118,7 +117,6 @@ func (s *format) switchType(v reflect.Value, depth int) {
 	default:
 		s.defaultBuf(v)
 	}
-	return
 }
 
 // depthBuf write buffer with depth
@@ -127,7 +125,6 @@ func (s *format) depthBuf(i int) {
 	for k := 0; k < i; k++ {
 		s.writeByte(Space)
 	}
-	return
 }
 
 // nilBuf write buffer with nil
@@ -138,7 +135,6 @@ func (s *format) nilBuf() {
 	default:
 		s.writeString(invalid)
 	}
-	return
 }
 
 // defaultBuf write buffer with default string

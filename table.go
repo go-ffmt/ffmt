@@ -97,16 +97,14 @@ func TableText(b string, prefix, split string) string {
 	for _, v := range strings.Split(b, "\n") {
 		if prefix != "" && !strings.HasPrefix(v, prefix) {
 			if len(table) != 0 {
-				for _, v := range FmtTable(table) {
-					rows = append(rows, v)
-				}
+				rows = append(rows, FmtTable(table)...)
 				table = table[:0]
 			}
 			rows = append(rows, v)
 			continue
 		}
 
-		row := []string{}
+		var row []string
 		ss := strings.Split(v, split)
 		for i, col := range ss {
 			if i == 0 {
@@ -121,9 +119,7 @@ func TableText(b string, prefix, split string) string {
 		table = append(table, row)
 	}
 	if len(table) != 0 {
-		for _, v := range FmtTable(table) {
-			rows = append(rows, v)
-		}
+		rows = append(rows, FmtTable(table)...)
 	}
 	ret := strings.Join(rows, "\n")
 	return ret
