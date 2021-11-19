@@ -149,6 +149,10 @@ func example() {
 }
 ```
 
+## 赞助
+
+[![jetbrains](https://www.jetbrains.com/shop/static/images/jetbrains-logo-inv.svg)](https://www.jetbrains.com/shop/eform/opensource)
+
 ## 许可证
 
 软包根据MIT License。有关完整的许可证文本，请参阅[LICENSE](https://github.com/go-ffmt/ffmt/blob/master/LICENSE)。

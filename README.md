@@ -148,8 +148,11 @@ func example() {
 	*/
 }
 
-
 ```
+
+## Sponsors
+
+[![jetbrains](https://www.jetbrains.com/shop/static/images/jetbrains-logo-inv.svg)](https://www.jetbrains.com/shop/eform/opensource)
 
 ## License
 
